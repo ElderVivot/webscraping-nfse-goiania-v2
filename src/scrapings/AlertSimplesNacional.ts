@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer'
 
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import checkIfLoadedThePage from '../../utils/CheckIfLoadedThePage'
+import ISettingsGoiania from '../models/ISettingsGoiania'
+import checkIfLoadedThePage from '../utils/CheckIfLoadedThePage'
 import TreatsMessageLog from './TreatsMessageLog'
 
 const AlertSimplesNacional = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
