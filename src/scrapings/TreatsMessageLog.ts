@@ -1,49 +1,59 @@
 // import path from 'path'
 import { Browser, Page } from 'puppeteer'
 
-import SaveLogPrefGoiania from '../../controllers/SaveLogPrefGoiania'
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-// import createFolderToSaveData from '../../utils/CreateFolderToSaveData'
+import { logger } from '@common/log'
+import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
-export default class TreatsMessageLog {
-    private page: Page
-    private browser: Browser | undefined
-    private settings: ISettingsGoiania
-    private pathImg = ''
+import { ILogNotaFiscalApi, ISettingsGoiania } from './_interfaces'
 
-    constructor (page: Page, settings: ISettingsGoiania, browser?: Browser) {
+export class TreatsMessageLog {
+    constructor (private page: Page, private settings: ISettingsGoiania, private browser?: Browser, private noClosePage?: boolean) {
         this.page = page
         this.browser = browser
         this.settings = settings
+        this.noClosePage = noClosePage
     }
 
-    async saveLog (): Promise<void> {
-        // this.pathImg = await createFolderToSaveData(this.settings)
-        // this.pathImg = path.resolve(this.pathImg, `${this.settings.messageLog}.png`)
-        // await this.page.screenshot({ path: this.pathImg, fullPage: true })
-        await this.page.close()
-        if (this.browser) {
-            if (this.browser.isConnected()) await this.browser.close()
+    async saveLog (saveInDB = true): Promise<void> {
+        if (saveInDB) {
+            if (this.settings.typeLog === 'error') { this.settings.qtdTimesReprocessed += 1 }
+
+            const dataToSave: ILogNotaFiscalApi = {
+                idLogNfsPrefGyn: this.settings.idLogNfsPrefGyn,
+                idAccessPortals: this.settings.idAccessPortals,
+                typeLog: this.settings.typeLog || 'error',
+                messageLog: this.settings.messageLog || '',
+                messageError: this.settings.messageError?.toString() || this.settings.messageError || '',
+                messageLogToShowUser: this.settings.messageLogToShowUser || '',
+                federalRegistration: this.settings.federalRegistration,
+                nameCompanie: this.settings.nameCompanie,
+                cityRegistration: this.settings.cityRegistration,
+                dateStartDown: new Date(this.settings.dateStartDown).toISOString(),
+                dateEndDown: new Date(this.settings.dateEndDown).toISOString(),
+                qtdNotesDown: this.settings.qtdNotes || 0,
+                qtdTimesReprocessed: this.settings.qtdTimesReprocessed || 0
+            }
+
+            const saveLogPref = new SaveLogPrefGoiania(dataToSave, true, this.page)
+            await saveLogPref.save()
         }
 
-        const saveLogPrefGoiania = new SaveLogPrefGoiania()
-        await saveLogPrefGoiania.saveLog({
-            id: this.settings.id,
-            prefGoianiaAccess: this.settings.idUser,
-            hourLog: this.settings.hourLog,
-            typeLog: this.settings.typeLog || 'error',
-            messageLog: this.settings.messageLog || '',
-            messageError: this.settings.messageError,
-            messageLogToShowUser: this.settings.messageLogToShowUser,
-            urlImageDown: this.pathImg,
-            codeCompanie: this.settings.codeCompanie,
-            nameCompanie: this.settings.companie,
-            inscricaoMunicipal: this.settings.inscricaoMunicipal,
-            dateStartDown: this.settings.dateStartDown,
-            dateEndDown: this.settings.dateEndDown,
-            qtdNotesDown: this.settings.qtdTimesReprocessed,
-            qtdTimesReprocessed: this.settings.qtdTimesReprocessed
-        })
+        if (this.settings.typeLog === 'warning') {
+            logger.warn({
+                msg: this.settings.messageLogToShowUser,
+                locationFile: this.settings.pathFile,
+                error: this.settings.error
+            })
+        } else if (this.settings.typeLog === 'error') {
+            logger.error({
+                msg: this.settings.messageLogToShowUser,
+                locationFile: this.settings.pathFile,
+                error: this.settings.error
+            })
+        }
+
+        if (!this.noClosePage) await this.page.close()
+        if (this.browser) await this.browser.close()
 
         throw `[${this.settings.typeLog}]-${this.settings.messageLog}-${this.settings.messageError}`
     }

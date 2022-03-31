@@ -1,15 +1,13 @@
 import { Page } from 'puppeteer'
 
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import TreatsMessageLog from './TreatsMessageLog'
+import { ISettingsGoiania } from './_interfaces'
+import { TreatsMessageLog } from './TreatsMessageLog'
 
-const ChangeCompanie = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
+export const ChangeCompanie = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
     try {
-        await page.waitFor('select[id*="GoianiaTheme_wtTelaPrincipal_block_wtActions_SISEGIntegration"]')
+        await page.waitForSelector('select[id*="GoianiaTheme_wtTelaPrincipal_block_wtActions_SISEGIntegration"]')
         await page.select('select[id*="GoianiaTheme_wtTelaPrincipal_block_wtActions_SISEGIntegration"]', settings.valueLabelSite || '')
     } catch (error) {
-        console.log('\t[Final-Empresa] - Erro ao trocar de empresa')
-        console.log('\t-------------------------------------------------')
         settings.typeLog = 'error'
         settings.messageLog = 'ChangeCompanie'
         settings.messageError = error
@@ -19,5 +17,3 @@ const ChangeCompanie = async (page: Page, settings: ISettingsGoiania): Promise<v
         await treatsMessageLog.saveLog()
     }
 }
-
-export default ChangeCompanie

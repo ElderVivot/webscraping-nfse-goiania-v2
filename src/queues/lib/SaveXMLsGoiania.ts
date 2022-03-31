@@ -1,56 +1,58 @@
 import Queue from 'bull'
 
-import redisConfig from '../../config/redis'
-import SaveLogPrefGoiania from '../../controllers/SaveLogPrefGoiania'
-import SaveXMLsGoiania from '../jobs/SaveXMLsGoiania'
+import { logger } from '@common/log'
+import redisConfig from '@config/redis'
+import { ILogNotaFiscalApi, ISettingsGoiania } from '@scrapings/_interfaces'
+import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
-const saveXMLsGoiania = new Queue(SaveXMLsGoiania.key, { redis: redisConfig })
+import { SaveXMLsGoianiaJobs } from '../jobs/SaveXMLsGoiania'
 
-saveXMLsGoiania.on('failed', async (job, error) => {
-    const { settings } = job.data
-    const saveLogPrefGoiania = new SaveLogPrefGoiania()
-    await saveLogPrefGoiania.saveLog({
-        id: settings.id,
-        prefGoianiaAccess: settings.idUser,
-        hourLog: settings.hourLog,
+export const saveXMLsGoianiaLib = new Queue(SaveXMLsGoianiaJobs.key, { redis: redisConfig })
+
+saveXMLsGoianiaLib.on('failed', async (job, error) => {
+    const settings: ISettingsGoiania = job.data.settings
+    const dataToSave: ILogNotaFiscalApi = {
+        idLogNfsPrefGyn: settings.idLogNfsPrefGyn,
+        idAccessPortals: settings.idAccessPortals,
         typeLog: 'error',
         messageLog: 'ErrorToProcessDataInQueue',
+        messageError: error.message?.toString(),
         messageLogToShowUser: 'Erro ao salvar XMLs na pasta.',
-        messageError: error.message,
-        urlImageDown: '',
-        codeCompanie: settings.codeCompanie,
-        nameCompanie: settings.companie,
-        inscricaoMunicipal: settings.inscricaoMunicipal,
-        dateStartDown: settings.dateStartDown,
-        dateEndDown: settings.dateEndDown,
-        qtdNotesDown: settings.qtdNotes,
-        qtdTimesReprocessed: settings.qtdTimesReprocessed
-    })
+        federalRegistration: settings.federalRegistration,
+        nameCompanie: settings.nameCompanie,
+        cityRegistration: settings.cityRegistration,
+        dateStartDown: new Date(settings.dateStartDown).toISOString(),
+        dateEndDown: new Date(settings.dateEndDown).toISOString(),
+        qtdNotesDown: settings.qtdNotes || 0,
+        qtdTimesReprocessed: settings.qtdTimesReprocessed || 0
+    }
 
-    console.log('Job failed', job.data)
-    console.log(error)
+    const saveLog = new SaveLogPrefGoiania(dataToSave)
+    const idLogNfsPrefGyn = await saveLog.save()
+
+    logger.error('Job failed', `ID ${idLogNfsPrefGyn} | ${settings.codeCompanieAccountSystem} - ${settings.nameCompanie} - ${settings.federalRegistration} | ${settings.dateStartDown} - ${settings.dateEndDown}`)
 })
 
-saveXMLsGoiania.on('completed', async (job) => {
-    const { settings } = job.data
-    const saveLogPrefGoiania = new SaveLogPrefGoiania()
-    await saveLogPrefGoiania.saveLog({
-        id: settings.id,
-        prefGoianiaAccess: settings.idUser,
-        hourLog: settings.hourLog,
-        typeLog: 'success',
+saveXMLsGoianiaLib.on('completed', async (job) => {
+    const settings: ISettingsGoiania = job.data.settings
+    const dataToSave: ILogNotaFiscalApi = {
+        idLogNfsPrefGyn: settings.idLogNfsPrefGyn,
+        idAccessPortals: settings.idAccessPortals,
+        typeLog: 'error',
         messageLog: 'SucessToSaveNotes',
         messageLogToShowUser: 'Notas salvas com sucesso',
         messageError: '',
-        urlImageDown: '',
-        codeCompanie: settings.codeCompanie,
-        nameCompanie: settings.companie,
-        inscricaoMunicipal: settings.inscricaoMunicipal,
-        dateStartDown: settings.dateStartDown,
-        dateEndDown: settings.dateEndDown,
-        qtdNotesDown: settings.qtdNotes,
-        qtdTimesReprocessed: settings.qtdTimesReprocessed
-    })
-})
+        federalRegistration: settings.federalRegistration,
+        nameCompanie: settings.nameCompanie,
+        cityRegistration: settings.cityRegistration,
+        dateStartDown: new Date(settings.dateStartDown).toISOString(),
+        dateEndDown: new Date(settings.dateEndDown).toISOString(),
+        qtdNotesDown: settings.qtdNotes || 0,
+        qtdTimesReprocessed: settings.qtdTimesReprocessed || 0
+    }
 
-export default saveXMLsGoiania
+    const saveLog = new SaveLogPrefGoiania(dataToSave)
+    const idLogNfsPrefGyn = await saveLog.save()
+
+    logger.info('Job success', `ID ${idLogNfsPrefGyn} | ${settings.codeCompanieAccountSystem} - ${settings.nameCompanie} - ${settings.federalRegistration} | ${settings.dateStartDown} - ${settings.dateEndDown}`)
+})

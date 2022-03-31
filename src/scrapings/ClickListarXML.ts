@@ -1,13 +1,13 @@
 import { Page } from 'puppeteer'
 
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import TreatsMessageLog from './TreatsMessageLog'
+import { ISettingsGoiania } from './_interfaces'
+import { TreatsMessageLog } from './TreatsMessageLog'
 
-const ClickListarXML = async (page: Page, settings: ISettingsGoiania, newPagePromise: Promise<Page>): Promise<void> => {
+export const ClickListarXML = async (page: Page, settings: ISettingsGoiania, newPagePromise: Promise<Page>): Promise<void> => {
     try {
         const frame = page.frames().find(frame => frame.name() === 'cpo')
         if (frame) {
-            await frame.waitFor('[value=Listar]')
+            await frame.waitForSelector('[value=Listar]')
             await frame.click('[value=Listar]')
         } else {
             throw 'NOT_FOUND_FRAME_CPO'
@@ -15,8 +15,6 @@ const ClickListarXML = async (page: Page, settings: ISettingsGoiania, newPagePro
         const popup = await newPagePromise
         await page.goto(popup.url(), { waitUntil: 'networkidle0', timeout: 6000000 }) // aguarda até 60 minutos carregar a página pra fazer o download
     } catch (error) {
-        console.log('\t\t[Final-Empresa-Mes] - Erro ao listar os XMLs')
-        console.log('\t\t-------------------------------------------------')
         settings.typeLog = 'error'
         settings.messageLog = 'ClickListarXML'
         settings.messageError = error
@@ -26,5 +24,3 @@ const ClickListarXML = async (page: Page, settings: ISettingsGoiania, newPagePro
         await treatsMessageLog.saveLog()
     }
 }
-
-export default ClickListarXML

@@ -1,17 +1,15 @@
 import { Page } from 'puppeteer'
 
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import TreatsMessageLog from './TreatsMessageLog'
+import { ISettingsGoiania } from './_interfaces'
+import { TreatsMessageLog } from './TreatsMessageLog'
 
-const CheckIfSelectLoaded = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
+export const CheckIfSelectLoaded = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
     try {
         await page.waitForFunction(
-            `document.querySelector('#GoianiaTheme_wtTelaPrincipal_block_wtTitle_wtDadosCAE').textContent.includes(${settings.inscricaoMunicipal})`
+            `document.querySelector('#GoianiaTheme_wtTelaPrincipal_block_wtTitle_wtDadosCAE').textContent.includes(${settings.cityRegistration})`
         )
-        await page.waitFor(2500) // espera mais 2,5 segundos pra terminar de carregar os dados do novo select
+        await page.waitForTimeout(2500) // wait 2,5 seconds to finish load of data of new select
     } catch (error) {
-        console.log('\t[Final-Empresa] - Erro ao checar se a troca de empresa foi finalizada')
-        console.log('\t-------------------------------------------------')
         settings.typeLog = 'error'
         settings.messageLog = 'CheckIfSelectLoaded'
         settings.messageError = error
@@ -21,5 +19,3 @@ const CheckIfSelectLoaded = async (page: Page, settings: ISettingsGoiania): Prom
         await treatsMessageLog.saveLog()
     }
 }
-
-export default CheckIfSelectLoaded

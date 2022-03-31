@@ -1,11 +1,12 @@
 import { Browser, Page } from 'puppeteer'
 
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import TreatsMessageLog from './TreatsMessageLog'
+import { ISettingsGoiania } from './_interfaces'
+import { TreatsMessageLog } from './TreatsMessageLog'
 
-const ClickPortalContribuinte = async (page: Page, browser: Browser, settings: ISettingsGoiania): Promise<void> => {
+export const ClickPortalContribuinte = async (page: Page, browser: Browser, settings: ISettingsGoiania): Promise<void> => {
     try {
-        await page.waitFor('table[id*="SistemaTable"]')
+        await page.waitForSelector('table[id*="SistemaTable"]')
+
         const IDTablePortalContribuinte = await page.evaluate(() => {
             const trs = document.querySelectorAll('table[id*="SistemaTable"] > tbody > tr')
             let id = ''
@@ -17,9 +18,9 @@ const ClickPortalContribuinte = async (page: Page, browser: Browser, settings: I
             })
             return id
         })
+
         await page.click(`#${IDTablePortalContribuinte}`)
     } catch (error) {
-        console.log('[Final-Loguin] - Erro ao clicar no botão "Portal do Contruibnte"')
         settings.typeLog = 'error'
         settings.messageLog = 'ClickPortalContribuinte'
         settings.messageError = error
@@ -29,5 +30,3 @@ const ClickPortalContribuinte = async (page: Page, browser: Browser, settings: I
         await treatsMessageLog.saveLog()
     }
 }
-
-export default ClickPortalContribuinte

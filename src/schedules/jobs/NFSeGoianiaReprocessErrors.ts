@@ -1,34 +1,84 @@
 import { CronJob } from 'cron'
 
-import GetLogPrefGoianiaErrors from '../../controllers/GetLogPrefGoianiaErrors'
-import MainNfseGoiania from '../../scrapings/nfsegoiania/MainNfseGoiania'
+import { IDateAdapter } from '@common/adapters/date/date-adapter'
+import { makeDateImplementation } from '@common/adapters/date/date-factory'
+import { makeFetchImplementation } from '@common/adapters/fetch/fetch-factory'
+import { handlesFetchError } from '@common/error/fetchError'
+import { logger } from '@common/log'
+import { scrapingNotesLib } from '@queues/lib/ScrapingNotes'
+import { IAccessPortals, ILogNotaFiscalApi, TTypeLog } from '@scrapings/_interfaces'
+import { urlBaseApi } from '@scrapings/_urlBaseApi'
 
-async function processNotes () {
-    const getLogPrefGoianiaErrors = new GetLogPrefGoianiaErrors()
-    const logPrefGoianiaErrors = await getLogPrefGoianiaErrors.get()
-    if (logPrefGoianiaErrors) {
-        for (const log of logPrefGoianiaErrors) {
-            await MainNfseGoiania({
-                id: log.id,
-                loguin: log.user,
-                password: log.password,
-                idUser: log.iduser,
-                inscricaoMunicipal: log.inscricaoMunicipal,
-                qtdTimesReprocessed: log.qtdTimesReprocessed,
-                dateStartDown: log.dateStartDown,
-                dateEndDown: log.dateEndDown
-            })
-        }
+function getDateStartAndEnd (dateFactory: IDateAdapter) {
+    const dateStart = dateFactory.subMonths(new Date(), Number(process.env.RETROACTIVE_MONTHS_TO_DOWNLOAD) || 0)
+    dateStart.setDate(1)
+
+    const dateEnd = new Date()
+
+    return {
+        dateStartString: dateFactory.formatDate(dateStart, 'yyyy-MM-dd'),
+        dateEndString: dateFactory.formatDate(dateEnd, 'yyyy-MM-dd')
     }
 }
 
-const job = new CronJob(
+async function processNotes (typeLog: TTypeLog) {
+    try {
+        const fetchFactory = makeFetchImplementation()
+        const dateFactory = makeDateImplementation()
+
+        const { dateStartString, dateEndString } = getDateStartAndEnd(dateFactory)
+
+        const urlBase = `${urlBaseApi}/log_nfs_pref_gyn`
+        const urlFilter = `?typeLog=${typeLog}&dateStartDownBetween=${dateStartString}&dateEndDownBetween=${dateEndString}`
+        const response = await fetchFactory.get<ILogNotaFiscalApi[]>(`${urlBase}${urlFilter}`, { headers: { tenant: process.env.TENANT } })
+        if (response.status >= 400) throw response
+        const data = response.data
+
+        if (data.length > 0) {
+            for (const logNotaFiscal of data) {
+                try {
+                    const urlBase = `${urlBaseApi}/access_portals`
+                    const urlFilter = `/${logNotaFiscal.idAccessPortals}/show_with_decrypt_password`
+                    const response = await fetchFactory.get<IAccessPortals>(`${urlBase}${urlFilter}`, { headers: { tenant: process.env.TENANT } })
+                    if (response.status >= 400) throw response
+
+                    const { passwordDecrypt } = response.data
+
+                    const jobId = `${logNotaFiscal.idAccessPortals}_${dateFactory.formatDate(new Date(logNotaFiscal.dateStartDown), 'yyyyMMdd')}_${dateFactory.formatDate(new Date(logNotaFiscal.dateEndDown), 'yyyyMMdd')}`
+                    const job = await scrapingNotesLib.getJob(jobId)
+                    if (job?.finishedOn) await job.remove() // remove job if already fineshed to process again, if dont fineshed yet, so dont process
+
+                    await scrapingNotesLib.add({
+                        settings: {
+                            ...logNotaFiscal,
+                            typeProcessing: 'MainAddQueueLoguin',
+                            password: passwordDecrypt,
+                            idCompanie: logNotaFiscal.idCompanie
+                        }
+                    }, {
+                        jobId
+                    })
+
+                    logger.info(`- Adicionado na fila JOB ID ${jobId} do loguin ${logNotaFiscal.loguin}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`)
+                } catch (error) {
+                    logger.error({
+                        msg: `- Erro ao reprocessar scraping ${logNotaFiscal.idAccessPortals} referente ao loguin ${logNotaFiscal.loguin}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`,
+                        locationFile: __filename,
+                        error
+                    })
+                }
+            }
+        }
+    } catch (error) {
+        handlesFetchError(error, __filename)
+    }
+}
+
+export const jobNfsGoianiaError = new CronJob(
     '0 */3 * * *',
     async function () {
-        await processNotes()
+        await processNotes('error')
     },
     null,
     true
 )
-
-export default job

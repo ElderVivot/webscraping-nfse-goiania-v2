@@ -1,6 +1,6 @@
 import { format, zonedTimeToUtc } from 'date-fns-tz'
 
-import { returnDataInDictOrArray } from '../../utils/functions'
+import { returnDataInDictOrArray } from '@utils/functions'
 
 interface INFSeGoiania {
     numero: number,
@@ -21,7 +21,7 @@ interface INFSeGoiania {
     nameTomador: string
 }
 
-export default function NFSeGoiania (nf: object): INFSeGoiania {
+export function NFSeGoiania (nf: object): INFSeGoiania {
     const numero = Number(returnDataInDictOrArray(nf, ['ListaNfse', 0, 'CompNfse', 0, 'Nfse', 0, 'InfNfse', 0, 'Numero', 0]))
     const codigoVerificacao = returnDataInDictOrArray(nf, ['ListaNfse', 0, 'CompNfse', 0, 'Nfse', 0, 'InfNfse', 0, 'CodigoVerificacao', 0])
     let dataEmissao = returnDataInDictOrArray(nf, ['ListaNfse', 0, 'CompNfse', 0, 'Nfse', 0, 'InfNfse', 0, 'DataEmissao', 0])

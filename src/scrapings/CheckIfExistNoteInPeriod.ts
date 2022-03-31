@@ -1,11 +1,11 @@
 import { Page } from 'puppeteer'
 
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import TreatsMessageLog from './TreatsMessageLog'
+import { ISettingsGoiania } from './_interfaces'
+import { TreatsMessageLog } from './TreatsMessageLog'
 
-const CheckIfExistNoteInPeriod = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
+export const CheckIfExistNoteInPeriod = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
     try {
-        await page.waitFor('body')
+        await page.waitForSelector('body')
         let aviso = await page.evaluate(() => {
             return document.querySelector('body')?.textContent
         }) || ''
@@ -16,14 +16,11 @@ const CheckIfExistNoteInPeriod = async (page: Page, settings: ISettingsGoiania):
     } catch (error) {
         settings.typeLog = 'error'
         if (error === 'NOT_EXIST_NFSE') {
-            console.log('\t\t[16] - Não há nenhuma nota no filtro passado')
-            settings.typeLog = 'warning'
+            settings.typeLog = 'success'
             settings.messageLogToShowUser = 'Não há nenhuma nota neste período processado.'
         } else {
-            console.log('\t\t[Final-Empresa-Mes] - Erro ao checar se existe nota no período')
             settings.messageLogToShowUser = 'Erro ao checar se existe nota neste período.'
         }
-        console.log('\t\t-------------------------------------------------')
         settings.messageLog = 'CheckIfExistNoteInPeriod'
         settings.messageError = error
 
@@ -31,5 +28,3 @@ const CheckIfExistNoteInPeriod = async (page: Page, settings: ISettingsGoiania):
         await treatsMessageLog.saveLog()
     }
 }
-
-export default CheckIfExistNoteInPeriod

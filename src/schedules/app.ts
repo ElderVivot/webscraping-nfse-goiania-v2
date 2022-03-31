@@ -1,13 +1,13 @@
 import express from 'express'
 
-import NFSeGoiania from './jobs/NFSeGoiania'
-import NFSeGoianiaReprocessErrors from './jobs/NFSeGoianiaReprocessErrors'
+import { jobNfsGoiania } from './jobs/NFSeGoiania'
+// import { jobNfsGoianiaError } from './jobs/NFSeGoianiaReprocessErrors'
 
 const app = express()
 
 async function process () {
-    NFSeGoiania.start()
-    NFSeGoianiaReprocessErrors.start()
+    jobNfsGoiania.start()
+    // jobNfsGoianiaError.start()
 }
 
 process().then(_ => console.log())

@@ -2,23 +2,23 @@ import fs from 'fs'
 import path from 'path'
 import { Parser, Builder } from 'xml2js'
 
-import SaveNotesNfse from '../../controllers/SaveNotesNfse'
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import NFSeGoiania from '../../services/read_xmls/NFSeGoiania'
-import createFolderToSaveData from '../../utils/CreateFolderToSaveData'
-import { returnDataInDictOrArray } from '../../utils/functions'
+import { logger } from '@common/log'
+import { ISettingsGoiania } from '@scrapings/_interfaces'
+import { NFSeGoiania } from '@services/read_xmls/NFSeGoiania'
+import createFolderToSaveData from '@utils/CreateFolderToSaveData'
+import { returnDataInDictOrArray } from '@utils/functions'
 
 const parser = new Parser()
 const builder = new Builder()
 
-const SaveXMLsGoiania = {
+export const SaveXMLsGoianiaJobs = {
     key: 'SaveXMLsGoiania',
     async handle ({ data }): Promise<void> {
         const settings: ISettingsGoiania = data.settings
         const dataXml: string = data.dataXml
 
-        console.log('---------------------------------------------------')
-        console.log(`- [XMLsGoiania] - Iniciando processamento ${settings.companie} comp. ${settings.month}-${settings.year}`)
+        logger.info('---------------------------------------------------')
+        logger.info(`- [XMLsGoiania] - Iniciando processamento ${settings.nameCompanie} comp. ${settings.month}-${settings.year}`)
 
         let pathNote = await createFolderToSaveData(settings)
         const pathOriginal = pathNote
@@ -33,35 +33,12 @@ const SaveXMLsGoiania = {
         settings.qtdNotes = Number(nfsXml.length)
         for (let i = 0; i < settings.qtdNotes; i++) {
             const nf = nfsXml[i]
-            console.log(`\t- Processando nota ${i + 1} de ${settings.qtdNotes}`)
+            logger.info(`- Processando nota ${i + 1} de ${settings.qtdNotes}`)
             const nfToXml = {
                 GerarNfseResposta: nf
             }
 
             const nfseGoiania = NFSeGoiania(nf)
-
-            const saveNotesNfse = new SaveNotesNfse()
-            await saveNotesNfse.save({
-                codeCompanie: settings.codeCompanie,
-                nameCompanie: settings.companie,
-                cgceCompanie: nfseGoiania.cgcePrestador,
-                inscricaoMunicipalCompanie: settings.inscricaoMunicipal,
-                numberNote: nfseGoiania.numero,
-                keyNote: nfseGoiania.codigoVerificacao,
-                dateNote: nfseGoiania.dataEmissao,
-                nameTomador: nfseGoiania.nameTomador,
-                cgceTomador: nfseGoiania.cgceTomador,
-                statusNote: nfseGoiania.statusNota,
-                amountNote: nfseGoiania.valorServicos,
-                amountCalculationBase: nfseGoiania.baseCalculo,
-                rateISS: nfseGoiania.aliquotaIss,
-                amountISS: nfseGoiania.valorIss,
-                amountCSLL: nfseGoiania.valorCsll,
-                amountINSS: nfseGoiania.valorInss,
-                amountIRRF: nfseGoiania.valorIr,
-                amountPIS: nfseGoiania.valorPis,
-                amountCOFINS: nfseGoiania.valorCofins
-            })
 
             const nameFileToSave = `${nfseGoiania.numero}-${nfseGoiania.codigoVerificacao}`
 
@@ -70,11 +47,9 @@ const SaveXMLsGoiania = {
 
             const xml = builder.buildObject(nfToXml)
             fs.writeFileSync(pathNote, xml)
-            if (settings.codeCompanie && pathOriginalRoutineAutomactic) {
+            if (settings.codeCompanieAccountSystem && pathOriginalRoutineAutomactic) {
                 fs.writeFileSync(pathNoteRoutineAutomactic, xml)
             }
         }
     }
 }
-
-export default SaveXMLsGoiania

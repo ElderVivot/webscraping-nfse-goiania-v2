@@ -1,13 +1,13 @@
 import { CronJob } from 'cron'
 
-import NFSeGoiania from '../../scrapings/nfsegoiania/index'
+import { Applicattion } from '@scrapings/index'
 
 async function processNotes () {
-    const applicattion = new NFSeGoiania()
+    const applicattion = new Applicattion()
     await applicattion.process()
 }
 
-const job = new CronJob(
+export const jobNfsGoiania = new CronJob(
     '00 19 * * *',
     async function () {
         await processNotes()
@@ -15,5 +15,3 @@ const job = new CronJob(
     null,
     true
 )
-
-export default job

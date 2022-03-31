@@ -1,5 +1,8 @@
 import 'dotenv/config'
-import SaveXMLsGoiania from './jobs/SaveXMLsGoiania'
-import SaveXMLsGoianiaLib from './lib/SaveXMLsGoiania'
+import { SaveXMLsGoianiaJobs } from './jobs/SaveXMLsGoiania'
+import { ScrapingNotesJob } from './jobs/ScrapingNotes'
+import { saveXMLsGoianiaLib } from './lib/SaveXMLsGoiania'
+import { scrapingNotesLib } from './lib/ScrapingNotes'
 
-SaveXMLsGoianiaLib.process(SaveXMLsGoiania.handle)
+saveXMLsGoianiaLib.process(SaveXMLsGoianiaJobs.handle)
+scrapingNotesLib.process(ScrapingNotesJob.handle)

@@ -1,12 +1,11 @@
-import ISettingsGoiania from '../../models/ISettingsGoiania'
-import SaveXMLsGoiania from '../../queues/lib/SaveXMLsGoiania'
+import { saveXMLsGoianiaLib } from '@queues/lib/SaveXMLsGoiania'
 
-const SendXMLToQueues = async (settings: ISettingsGoiania, content: string): Promise<void> => {
+import { ISettingsGoiania } from './_interfaces'
+
+export const SendXMLToQueues = async (settings: ISettingsGoiania, content: string): Promise<void> => {
     settings.typeLog = 'success'
-    await SaveXMLsGoiania.add({
+    await saveXMLsGoianiaLib.add({
         dataXml: `<geral>${content}</geral>`,
         settings
     })
 }
-
-export default SendXMLToQueues
