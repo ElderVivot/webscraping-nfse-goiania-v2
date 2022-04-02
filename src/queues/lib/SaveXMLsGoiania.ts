@@ -38,7 +38,7 @@ saveXMLsGoianiaLib.on('completed', async (job) => {
     const dataToSave: ILogNotaFiscalApi = {
         idLogNfsPrefGyn: settings.idLogNfsPrefGyn,
         idAccessPortals: settings.idAccessPortals,
-        typeLog: 'error',
+        typeLog: 'success',
         messageLog: 'SucessToSaveNotes',
         messageLogToShowUser: 'Notas salvas com sucesso',
         messageError: '',
