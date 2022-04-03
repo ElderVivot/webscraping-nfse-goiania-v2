@@ -3,7 +3,7 @@ import { ISettingsGoiania } from '@scrapings/_interfaces'
 import { MainProcessLoguin } from '@scrapings/MainProcessLoguin'
 
 const ScrapingNotesJob = {
-    key: 'ScrapingNotes',
+    key: 'ScrapingNotesPrefGyn',
     async handle ({ data }): Promise<void> {
         const settings: ISettingsGoiania = data.settings
 
