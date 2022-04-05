@@ -46,16 +46,16 @@ export const SaveXMLsGoianiaJobs = {
             pathNoteRoutineAutomactic = path.join(pathOriginalRoutineAutomactic, `${nameFileToSave}.xml`)
 
             const xml = builder.buildObject(nfToXml)
-            fs.writeFile(pathNote, xml, (error) => {
+            /* fs.writeFile(pathNote, xml, (error) => {
                 if (error) throw error
-            })
-            // fs.writeFileSync(pathNote, xml)
+            }) */
+            fs.writeFileSync(pathNote, xml)
 
             if (settings.codeCompanieAccountSystem && pathOriginalRoutineAutomactic) {
-                fs.writeFile(pathNoteRoutineAutomactic, xml, (error) => {
+                /* fs.writeFile(pathNoteRoutineAutomactic, xml, (error) => {
                     if (error) throw error
-                })
-                // fs.writeFileSync(pathNoteRoutineAutomactic, xml)
+                }) */
+                fs.writeFileSync(pathNoteRoutineAutomactic, xml)
             }
         }
     }
