@@ -44,25 +44,27 @@ async function processNotes (typeLog: TTypeLog) {
 
                     const { passwordDecrypt } = response.data
 
-                    const jobId = `${logNotaFiscal.idAccessPortals}_${dateFactory.formatDate(new Date(logNotaFiscal.dateStartDown), 'yyyyMMdd')}_${dateFactory.formatDate(new Date(logNotaFiscal.dateEndDown), 'yyyyMMdd')}`
+                    const jobId = `${logNotaFiscal.idLogNfsPrefGyn}_${dateFactory.formatDate(new Date(logNotaFiscal.dateStartDown), 'yyyyMMdd')}_${dateFactory.formatDate(new Date(logNotaFiscal.dateEndDown), 'yyyyMMdd')}`
                     const job = await scrapingNotesLib.getJob(jobId)
-                    if (job?.finishedOn) await job.remove() // remove job if already fineshed to process again, if dont fineshed yet, so dont process
+                    const failed = await job?.isFailed()
+                    if (job?.finishedOn || failed) await job.remove() // remove job if already fineshed to process again, if dont fineshed yet, so dont process
 
                     await scrapingNotesLib.add({
                         settings: {
                             ...logNotaFiscal,
                             typeProcessing: 'MainAddQueueLoguin',
                             password: passwordDecrypt,
-                            idCompanie: logNotaFiscal.idCompanie
+                            idCompanie: logNotaFiscal.idCompanie,
+                            loguin: logNotaFiscal.login
                         }
                     }, {
                         jobId
                     })
 
-                    logger.info(`- Adicionado na fila JOB ID ${jobId} do loguin ${logNotaFiscal.loguin}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`)
+                    logger.info(`- Adicionado na fila JOB ID ${jobId} do loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`)
                 } catch (error) {
                     logger.error({
-                        msg: `- Erro ao reprocessar scraping ${logNotaFiscal.idAccessPortals} referente ao loguin ${logNotaFiscal.loguin}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`,
+                        msg: `- Erro ao reprocessar scraping ${logNotaFiscal.idLogNfsPrefGyn} referente ao loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`,
                         locationFile: __filename,
                         error
                     })
@@ -75,7 +77,7 @@ async function processNotes (typeLog: TTypeLog) {
 }
 
 export const jobNfsGoianiaError = new CronJob(
-    '0 */3 * * *',
+    '30 * * * *',
     async function () {
         await processNotes('error')
     },

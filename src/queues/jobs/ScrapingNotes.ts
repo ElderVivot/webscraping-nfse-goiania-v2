@@ -2,23 +2,20 @@ import { ISettingsGoiania } from '@scrapings/_interfaces'
 // import { MainNFGoias } from '@scrapings/MainNFGoiasProcessTheQueue'
 import { MainProcessLoguin } from '@scrapings/MainProcessLoguin'
 
+interface IData {
+    data: {
+        settings: ISettingsGoiania
+    }
+}
+
 const ScrapingNotesJob = {
     key: 'ScrapingNotesPrefGyn',
-    async handle ({ data }): Promise<void> {
-        const settings: ISettingsGoiania = data.settings
+    async handle ({ data }: IData): Promise<void> {
+        const settings = data.settings
 
-        if (settings.typeProcessing === 'MainAddQueueLoguin') {
-            await MainProcessLoguin({
-                typeProcessing: settings.typeProcessing,
-                idAccessPortals: settings.idAccessPortals,
-                loguin: settings.loguin,
-                password: settings.password,
-                dateStartDown: settings.dateStartDown,
-                dateEndDown: settings.dateEndDown
-            })
-        } else {
-
-        }
+        await MainProcessLoguin({
+            ...settings
+        })
 
         return Promise.resolve()
     }

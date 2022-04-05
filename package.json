@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/schedules/server.js",
     "build": "rimraf dist && babel src --extensions \".js,.ts\" --out-dir dist --copy-files --no-copy-ignored",
-    "dev:server": "ts-node-dev --no-notify --respawn --transpileOnly --ignore-watch node_modules src/schedules/server.ts",
+    "dev:server": "ts-node -r tsconfig-paths/register src/schedules/server.ts | pino-pretty -c -t",
     "dev:queue": "ts-node -r tsconfig-paths/register src/queues/queue.ts | pino-pretty -c -t",
     "dev:goiania": "ts-node -r tsconfig-paths/register src/scrapings/index.ts | pino-pretty -c -t"
   },

@@ -31,7 +31,7 @@ export interface ISettingsGoiania {
 export interface ILogNotaFiscalApi {
     idLogNfsPrefGyn: string
     idAccessPortals: string
-    loguin?: string
+    login?: string
     password?: string
     idCompanie?: string
     federalRegistration?: string

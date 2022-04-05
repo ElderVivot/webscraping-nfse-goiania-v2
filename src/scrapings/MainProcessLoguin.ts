@@ -40,7 +40,7 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
 
     try {
         logger.info(`[0] - Abrindo loguin ${settings.loguin}`)
-        const browser = await puppeteer.launch({ headless: false, slowMo: 50, args: ['--start-maximized'] })
+        const browser = await puppeteer.launch({ headless: true, slowMo: 50, args: ['--start-maximized'] })
         const page = await browser.newPage()
         await page.setViewport({ width: 0, height: 0 })
 
@@ -75,7 +75,7 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
             try {
                 settings = await CheckIfCompanieIsValid(page, settings)
 
-                await CheckIfPeriodAlreadyProcessed(page, settings)
+                if (!settings.idLogNfsPrefGyn) await CheckIfPeriodAlreadyProcessed(page, settings)
 
                 const pageEmpresa = await browser.newPage()
                 await pageEmpresa.setViewport({ width: 0, height: 0 })
