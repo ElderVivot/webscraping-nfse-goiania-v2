@@ -8,6 +8,7 @@ import { logger } from '@common/log'
 import { scrapingNotesLib } from '@queues/lib/ScrapingNotes'
 import { IAccessPortals, ILogNotaFiscalApi, TTypeLog } from '@scrapings/_interfaces'
 import { urlBaseApi } from '@scrapings/_urlBaseApi'
+import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
 function getDateStartAndEnd (dateFactory: IDateAdapter) {
     const dateStart = dateFactory.subMonths(new Date(), Number(process.env.RETROACTIVE_MONTHS_TO_DOWNLOAD) || 0)
@@ -42,26 +43,36 @@ async function processNotes (typeLog: TTypeLog) {
                     const response = await fetchFactory.get<IAccessPortals>(`${urlBase}${urlFilter}`, { headers: { tenant: process.env.TENANT } })
                     if (response.status >= 400) throw response
 
-                    const { passwordDecrypt } = response.data
+                    const { passwordDecrypt, status } = response.data
 
-                    const jobId = `${logNotaFiscal.idLogNfsPrefGyn}_${dateFactory.formatDate(new Date(logNotaFiscal.dateStartDown), 'yyyyMMdd')}_${dateFactory.formatDate(new Date(logNotaFiscal.dateEndDown), 'yyyyMMdd')}`
-                    const job = await scrapingNotesLib.getJob(jobId)
-                    const failed = await job?.isFailed()
-                    if (job?.finishedOn || failed) await job.remove() // remove job if already fineshed to process again, if dont fineshed yet, so dont process
-
-                    await scrapingNotesLib.add({
-                        settings: {
+                    if (status === 'INACTIVE') {
+                        const saveLogPrefGoiania = new SaveLogPrefGoiania({
                             ...logNotaFiscal,
-                            typeProcessing: 'MainAddQueueLoguin',
-                            password: passwordDecrypt,
-                            idCompanie: logNotaFiscal.idCompanie,
-                            loguin: logNotaFiscal.login
-                        }
-                    }, {
-                        jobId
-                    })
+                            typeLog: 'warning',
+                            messageLog: 'USER_INACTIVE',
+                            messageLogToShowUser: 'Cadastro do usuário foi inativado, não será reprocessado'
+                        })
+                        await saveLogPrefGoiania.save()
+                    } else {
+                        const jobId = `${logNotaFiscal.idLogNfsPrefGyn}_${dateFactory.formatDate(new Date(logNotaFiscal.dateStartDown), 'yyyyMMdd')}_${dateFactory.formatDate(new Date(logNotaFiscal.dateEndDown), 'yyyyMMdd')}`
+                        const job = await scrapingNotesLib.getJob(jobId)
+                        const failed = await job?.isFailed()
+                        if (job?.finishedOn || failed) await job.remove() // remove job if already fineshed to process again, if dont fineshed yet, so dont process
 
-                    logger.info(`- Adicionado na fila JOB ID ${jobId} do loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`)
+                        await scrapingNotesLib.add({
+                            settings: {
+                                ...logNotaFiscal,
+                                typeProcessing: 'MainAddQueueLoguin',
+                                password: passwordDecrypt,
+                                idCompanie: logNotaFiscal.idCompanie,
+                                loguin: logNotaFiscal.login
+                            }
+                        }, {
+                            jobId
+                        })
+
+                        logger.info(`- Adicionado na fila JOB ID ${jobId} do loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`)
+                    }
                 } catch (error) {
                     logger.error({
                         msg: `- Erro ao reprocessar scraping ${logNotaFiscal.idLogNfsPrefGyn} referente ao loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`,
