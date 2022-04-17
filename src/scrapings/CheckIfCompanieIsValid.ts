@@ -37,9 +37,9 @@ export async function CheckIfCompanieIsValid (page: Page, settings: ISettingsGoi
         const data = response.data
         const companie = await getCompanieActive(data, companiesOnlyActive, settings.year, settings.month)
 
-        settings.codeCompanieAccountSystem = companie ? companie.codeCompanieAccountSystem : ''
+        settings.codeCompanieAccountSystem = companie ? companie.codeCompanieAccountSystem : settings.codeCompanieAccountSystem
         settings.nameCompanie = companie ? companie.name : settings.nameCompanie
-        settings.federalRegistration = companie ? companie.federalRegistration : ''
+        settings.federalRegistration = companie ? companie.federalRegistration : settings.federalRegistration
 
         if (companiesOnlyActive && !settings.codeCompanieAccountSystem && settings.federalRegistration) {
             throw 'COMPANIE_NOT_CLIENT_THIS_ACCOUNTING_OFFICE'
