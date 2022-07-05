@@ -31,6 +31,8 @@ import { SelectPeriodToDownload } from './SelectPeriodToDownload'
 import { SendXMLToQueues } from './SendXMLToQueues'
 import { SerializeXML } from './SerializeXML'
 
+const HEADLESS = process.env.HEADLESS || 'YES'
+
 export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<void> => {
     settings.loguin = settings.loguin.replace(/[^0-9]/g, '')
     settings.month = new Date(settings.dateStartDown).getMonth() + 1
@@ -40,7 +42,7 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
 
     try {
         logger.info(`[0] - Abrindo loguin ${settings.loguin}`)
-        const browser = await puppeteer.launch({ headless: true, slowMo: 50, args: ['--start-maximized'] })
+        const browser = await puppeteer.launch({ headless: HEADLESS === 'YES', slowMo: 50, args: ['--start-maximized'] })
         const page = await browser.newPage()
         await page.setViewport({ width: 0, height: 0 })
 

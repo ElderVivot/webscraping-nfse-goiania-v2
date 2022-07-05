@@ -1,6 +1,7 @@
 import { Page } from 'puppeteer'
 
 import { checkIfLoadedThePage } from '@scrapings/CheckIfLoadedThePage'
+import { treateTextField } from '@utils/functions'
 
 import { ISettingsGoiania } from './_interfaces'
 import { TreatsMessageLog } from './TreatsMessageLog'
@@ -14,8 +15,8 @@ export const CheckIfAvisoFrameMnuAfterEntrar = async (page: Page, settings: ISet
         aviso = await frame?.evaluate(() => {
             return document.querySelector('tr[bgcolor=beige] > td > table > tbody > tr > td[align=center] > span')?.textContent
         })
-        aviso = aviso ? aviso.normalize('NFD').replace(/[^a-zA-Z/ ]/g, '').toUpperCase() : ''
-        if (aviso.trim() !== '') {
+        aviso = aviso ? treateTextField(aviso) : ''
+        if (aviso.indexOf('ATIVIDADE NAO EMISSORA') >= 0) {
             throw 'NAO_HABILITADA_EMITIR_NFSE'
         }
     } catch (error) {
