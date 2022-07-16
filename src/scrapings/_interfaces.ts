@@ -6,6 +6,7 @@ export type TTypeStatusAccess = 'ACTIVE' | 'INACTIVE'
 export interface ISettingsGoiania {
     idLogNfsPrefGyn?: string
     idAccessPortals?: string
+    idCompanie?: string
     loguin?: string
     password?: string
     typeProcessing?: 'MainAddQueueLoguin' | 'MainAddQueuCompanie'

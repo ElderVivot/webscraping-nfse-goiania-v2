@@ -14,6 +14,7 @@ saveXMLsGoianiaLib.on('failed', async (job, error) => {
     const dataToSave: ILogNotaFiscalApi = {
         idLogNfsPrefGyn: settings.idLogNfsPrefGyn,
         idAccessPortals: settings.idAccessPortals,
+        idCompanie: settings.idCompanie,
         typeLog: 'error',
         messageLog: 'ErrorToProcessDataInQueue',
         messageError: error.message?.toString(),
@@ -38,6 +39,7 @@ saveXMLsGoianiaLib.on('completed', async (job) => {
     const dataToSave: ILogNotaFiscalApi = {
         idLogNfsPrefGyn: settings.idLogNfsPrefGyn,
         idAccessPortals: settings.idAccessPortals,
+        idCompanie: settings.idCompanie,
         typeLog: 'success',
         messageLog: 'SucessToSaveNotes',
         messageLogToShowUser: 'Notas salvas com sucesso',

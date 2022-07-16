@@ -40,6 +40,7 @@ export async function CheckIfCompanieIsValid (page: Page, settings: ISettingsGoi
         settings.codeCompanieAccountSystem = companie ? companie.codeCompanieAccountSystem : settings.codeCompanieAccountSystem
         settings.nameCompanie = companie ? companie.name : settings.nameCompanie
         settings.federalRegistration = companie ? companie.federalRegistration : settings.federalRegistration
+        settings.idCompanie = companie ? companie.idCompanie : settings.idCompanie
 
         if (companiesOnlyActive && !settings.codeCompanieAccountSystem && settings.federalRegistration) {
             throw 'COMPANIE_NOT_CLIENT_THIS_ACCOUNTING_OFFICE'

@@ -21,6 +21,7 @@ export class TreatsMessageLog {
             const dataToSave: ILogNotaFiscalApi = {
                 idLogNfsPrefGyn: this.settings.idLogNfsPrefGyn,
                 idAccessPortals: this.settings.idAccessPortals,
+                idCompanie: this.settings.idCompanie,
                 typeLog: this.settings.typeLog || 'error',
                 messageLog: this.settings.messageLog || '',
                 messageError: this.settings.messageError?.toString() || this.settings.messageError || '',

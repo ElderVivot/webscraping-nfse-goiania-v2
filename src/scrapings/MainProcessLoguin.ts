@@ -38,7 +38,7 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
     settings.month = new Date(settings.dateStartDown).getMonth() + 1
     settings.year = new Date(settings.dateStartDown).getFullYear()
 
-    const { cityRegistration } = settings
+    const { cityRegistration, federalRegistration } = settings
 
     try {
         logger.info(`[0] - Abrindo loguin ${settings.loguin}`)
@@ -67,7 +67,9 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
 
             logger.info(`\t[5] - Iniciando processamento da empresa ${option.label} - ${option.inscricaoMunicipal}`)
 
-            settings = cleanDataObject(settings, [], ['idLogNfsPrefGyn', 'idAccessPortals', 'loguin', 'password', 'typeProcessing', 'dateStartDown', 'dateEndDown', 'month', 'year'])
+            if (!federalRegistration) {
+                settings = cleanDataObject(settings, [], ['idLogNfsPrefGyn', 'idAccessPortals', 'loguin', 'password', 'typeProcessing', 'dateStartDown', 'dateEndDown', 'month', 'year'])
+            }
 
             // set new values
             settings.valueLabelSite = option.value
