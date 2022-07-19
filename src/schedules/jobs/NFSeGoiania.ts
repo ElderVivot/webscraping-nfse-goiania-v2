@@ -8,7 +8,7 @@ async function processNotes () {
 }
 
 export const jobNfsGoiania = new CronJob(
-    '28 20 * * *',
+    '03 00 * * *',
     async function () {
         await processNotes()
     },

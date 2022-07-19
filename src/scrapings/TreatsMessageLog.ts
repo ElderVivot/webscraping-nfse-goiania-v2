@@ -43,13 +43,14 @@ export class TreatsMessageLog {
             logger.warn({
                 msg: this.settings.messageLogToShowUser,
                 locationFile: this.settings.pathFile,
-                error: this.settings.error
+                error: this.settings.messageError
             })
         } else if (this.settings.typeLog === 'error') {
             logger.error({
                 msg: this.settings.messageLogToShowUser,
                 locationFile: this.settings.pathFile,
-                error: this.settings.error
+                error: this.settings.messageError,
+                settings: this.settings
             })
         }
 
