@@ -2,6 +2,7 @@
 import { Browser, Page } from 'puppeteer'
 
 import { logger } from '@common/log'
+import { saveLogDynamo } from '@services/dynamodb'
 import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
 import { ILogNotaFiscalApi, ISettingsGoiania } from './_interfaces'
@@ -39,24 +40,17 @@ export class TreatsMessageLog {
             await saveLogPref.save()
         }
 
-        if (this.settings.typeLog === 'warning') {
-            logger.warn({
-                msg: this.settings.messageLogToShowUser,
-                locationFile: this.settings.pathFile,
-                error: this.settings.messageError
-            })
-        } else if (this.settings.typeLog === 'error') {
+        if (this.settings.typeLog === 'error') {
             logger.error({
-                msg: this.settings.messageLogToShowUser,
-                locationFile: this.settings.pathFile,
-                error: this.settings.messageError,
-                settings: this.settings
+                ...this.settings
             })
         }
+
+        await saveLogDynamo(this.settings)
 
         if (!this.noClosePage) await this.page.close()
         if (this.browser) await this.browser.close()
 
-        throw `[${this.settings.typeLog}]-${this.settings.messageLog}-${this.settings.messageError}`
+        throw `TreatsMessageLog-[${this.settings.typeLog}]-${this.settings.messageLog}-${this.settings.messageError}`
     }
 }

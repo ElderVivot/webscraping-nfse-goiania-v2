@@ -2,6 +2,7 @@ import puppeteer, { Page } from 'puppeteer'
 import 'dotenv/config'
 
 import { logger } from '@common/log'
+import { saveLogDynamo } from '@services/dynamodb'
 import { cleanDataObject } from '@utils/clean-data-object'
 
 import { ISettingsGoiania } from './_interfaces'
@@ -41,21 +42,21 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
     const { cityRegistration, federalRegistration } = settings
 
     try {
-        logger.info(`[0] - Abrindo loguin ${settings.loguin}`)
+        settings.nameStep = `0 - Abrindo loguin ${settings.loguin}`
         const browser = await puppeteer.launch({ headless: HEADLESS === 'YES', slowMo: 50, args: ['--start-maximized'] })
         const page = await browser.newPage()
         await page.setViewport({ width: 0, height: 0 })
 
-        logger.info('[1] - Abrindo site da prefeitura')
+        settings.nameStep = '1 - Abrindo site da prefeitura'
         await OpenSiteGoiania(page, browser, settings)
 
-        logger.info('[2] - Realizando o loguin')
+        settings.nameStep = '2 - Realizando o loguin'
         await Loguin(page, browser, settings)
 
-        logger.info('[3] - Clicando no botão "Portal Contruinte"')
+        settings.nameStep = '3 - Clicando no botão "Portal Contruinte"'
         await ClickPortalContribuinte(page, browser, settings)
 
-        logger.info('[4] - Pegando a relação de empresas que este contribuinte possui.')
+        settings.nameStep = '4 - Pegando a relação de empresas que este contribuinte possui.'
         const optionsEmpresas = await GetOptionsEmpresas(page, browser, settings)
 
         // Pega a URL atual pra não ter que abrir do zero o processo
@@ -65,10 +66,10 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
         for (const option of optionsEmpresas) {
             if (cityRegistration) if (option.inscricaoMunicipal !== settings.cityRegistration) continue
 
-            logger.info(`\t[5] - Iniciando processamento da empresa ${option.label} - ${option.inscricaoMunicipal}`)
+            settings.nameStep = `5 - Iniciando processamento da empresa ${option.label} - ${option.inscricaoMunicipal}`
 
             if (!federalRegistration) {
-                settings = cleanDataObject(settings, [], ['idLogNfsPrefGyn', 'idAccessPortals', 'loguin', 'password', 'typeProcessing', 'dateStartDown', 'dateEndDown', 'month', 'year'])
+                settings = cleanDataObject(settings, [], ['idLogNfsPrefGyn', 'idAccessPortals', 'loguin', 'password', 'typeProcessing', 'dateStartDown', 'dateEndDown', 'month', 'year', 'nameStep'])
             }
 
             // set new values
@@ -85,43 +86,43 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
                 await pageEmpresa.setViewport({ width: 0, height: 0 })
                 await OpenCompanieInNewPage(pageEmpresa, settings, urlActual)
 
-                logger.info('\t[6] - Realizando a troca pra empresa atual')
+                settings.nameStep = '6 - Realizando a troca pra empresa atual'
                 await ChangeCompanie(pageEmpresa, settings)
 
-                logger.info('\t[7] - Checando se a troca foi realizada com sucesso')
+                settings.nameStep = '7 - Checando se a troca foi realizada com sucesso'
                 await CheckIfSelectLoaded(pageEmpresa, settings)
 
-                logger.info('\t[8] - Verificando se o "Contribuinte está com a situação Baixada/Suspensa"')
+                settings.nameStep = '8 - Verificando se o "Contribuinte está com a situação Baixada/Suspensa"'
                 await CheckIfEmpresaEstaBaixada(pageEmpresa, settings)
 
-                logger.info('\t[9] - Verificando se tem aviso pro contribuinte, caso sim, fechando-o')
+                settings.nameStep = '9 - Verificando se tem aviso pro contribuinte, caso sim, fechando-o'
                 await CheckAndCloseIfExistPopupWarning(pageEmpresa)
 
-                logger.info('\t[10] - Clicando no botão "NF-e Eletrônica"')
+                settings.nameStep = '10 - Clicando no botão "NF-e Eletrônica"'
                 await ClickNFeEletronica(pageEmpresa, settings)
 
-                logger.info('\t[12] - Clicando no botão "Entrar"')
+                settings.nameStep = '12 - Clicando no botão "Entrar"'
                 await GotoLinkNFeEletrotinaEntrar(pageEmpresa, settings)
 
                 // Aviso depois do botão "Entrar" --> caso tenha aviso para o processamento desta
                 // empresa, pois geralmente quando tem é empresa sem atividade de serviço ou usuário inválido
                 await CheckIfAvisoFrameMnuAfterEntrar(pageEmpresa, settings)
 
-                logger.info('\t[13] - Passando pelo alerta do simples nacional.')
+                settings.nameStep = '13 - Passando pelo alerta do simples nacional.'
                 await AlertSimplesNacional(pageEmpresa, settings)
 
-                logger.info('\t[14] - Clicando no botão "Download de XML de Notas Fiscais por período"')
+                settings.nameStep = '14 - Clicando no botão "Download de XML de Notas Fiscais por período"'
                 await ClickDownloadXML(pageEmpresa, settings)
 
-                logger.info('\t[15] - Pegando o CNPJ/CPF do Prestador')
+                settings.nameStep = '15 - Pegando o CNPJ/CPF do Prestador'
                 settings.federalRegistration = await GetCNPJPrestador(pageEmpresa, settings)
 
                 settings = await CheckIfCompanieIsValid(pageEmpresa, settings)
 
-                logger.info('\t[17] - Seleciona o período desejado pra baixar os XMLs')
+                settings.nameStep = '16 - Seleciona o período desejado pra baixar os XMLs'
                 await SelectPeriodToDownload(pageEmpresa, settings)
 
-                logger.info('\t[18] - Clicando no botão "Listar"')
+                settings.nameStep = '17 - Clicando no botão "Listar"'
                 const newPagePromise: Promise<Page> = new Promise(resolve => (
                     browser.once('targetcreated', target => resolve(target.page()))
                 ))
@@ -130,26 +131,42 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
                 // Verifica se tem notas no período solicitado, caso não, para o processamento
                 await CheckIfExistNoteInPeriod(pageEmpresa, settings)
 
-                logger.info('\t[19] - Abrindo os dados das notas')
+                settings.nameStep = '18 - Abrindo os dados das notas'
                 await ClickToOpenContentXML(pageEmpresa, settings)
 
-                logger.info('\t[20] - Obtendo conteúdo das notas')
+                settings.nameStep = '19 - Obtendo conteúdo das notas'
                 const contentXML = await GetContentXML(pageEmpresa, settings)
 
-                logger.info('\t[21] - Retirando caracteres inválidos dos XMLs')
+                settings.nameStep = '20 - Retirando caracteres inválidos dos XMLs'
                 const contentXMLSerializable = await SerializeXML(pageEmpresa, settings, contentXML)
 
-                logger.info('\t[22] - Enviando XMLs das notas para as filas')
+                settings.nameStep = '21 - Enviando XMLs das notas para as filas'
                 await SendXMLToQueues(settings, contentXMLSerializable)
 
                 // Fecha a aba do mês afim de que possa abrir outra
                 await CloseOnePage(pageEmpresa, 'Empresa')
-            } catch (error) { }
+            } catch (error) {
+                if (error.toString().indexOf('TreatsMessageLog') < 0) {
+                    logger.error(error)
+                    await saveLogDynamo({
+                        messageError: error,
+                        messageLog: 'MainProcessLoguin',
+                        pathFile: __filename,
+                        typeLog: 'error'
+                    })
+                }
+            }
         }
 
         logger.info('[Final-Loguin] - Todos os dados deste loguin processados, fechando navegador.')
         if (browser) await browser.close()
     } catch (error) {
         logger.error(error)
+        await saveLogDynamo({
+            messageError: error,
+            messageLog: 'MainProcessLoguin',
+            pathFile: __filename,
+            typeLog: 'error'
+        })
     }
 }

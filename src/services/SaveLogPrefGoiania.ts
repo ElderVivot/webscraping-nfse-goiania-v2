@@ -3,9 +3,11 @@ import { Page } from 'puppeteer'
 import { IFetchAdapter } from '@common/adapters/fetch/fetch-adapter'
 import { makeFetchImplementation } from '@common/adapters/fetch/fetch-factory'
 import { handlesFetchError } from '@common/error/fetchError'
-import { logger } from '@common/log'
+// import { logger } from '@common/log'
 import { ILogNotaFiscalApi } from '@scrapings/_interfaces'
 import { urlBaseApi } from '@scrapings/_urlBaseApi'
+
+import { saveLogDynamo } from './dynamodb'
 
 export class SaveLogPrefGoiania {
     private fetchFactory: IFetchAdapter
@@ -59,8 +61,14 @@ export class SaveLogPrefGoiania {
                 return response.data.idLogNfsPrefGyn
             }
         } catch (error) {
-            logger.error(this.dataToSave)
-            handlesFetchError(error, __filename)
+            const responseFetch = handlesFetchError(error)
+            await saveLogDynamo({
+                messageError: error,
+                messageLog: 'SaveXMLsNFeNFCGO',
+                pathFile: __filename,
+                typeLog: 'error',
+                errorResponseApi: responseFetch
+            })
         }
     }
 }

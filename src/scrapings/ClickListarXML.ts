@@ -19,6 +19,7 @@ export const ClickListarXML = async (page: Page, settings: ISettingsGoiania, new
         settings.messageLog = 'ClickListarXML'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao listar os XMLs.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

@@ -30,6 +30,7 @@ export const SelectPeriodToDownload = async (page: Page, settings: ISettingsGoia
         settings.messageLog = 'SelectPeriodToDownload'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao selecionar o período".'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings, null, true)
         await treatsMessageLog.saveLog()

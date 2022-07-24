@@ -29,6 +29,7 @@ export const CheckIfAvisoFrameMnuAfterEntrar = async (page: Page, settings: ISet
         }
         settings.messageLog = 'CheckIfAvisoFrameMnuAfterEntrar'
         settings.messageError = error
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

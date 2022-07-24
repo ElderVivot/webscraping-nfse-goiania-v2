@@ -21,6 +21,7 @@ export const GetCNPJPrestador = async (page: Page, settings: ISettingsGoiania): 
         settings.messageLogToShowUser = 'Erro ao pegar o CNPJ/CPF da empresa.'
         settings.messageLog = 'GetCNPJPrestador'
         settings.messageError = error
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

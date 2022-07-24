@@ -38,6 +38,7 @@ export const Loguin = async (page: Page, browser: Browser, settings: ISettingsGo
         settings.typeLog = 'error'
         settings.messageLog = 'Loguin'
         settings.messageError = error
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings, browser)
         await treatsMessageLog.saveLog()

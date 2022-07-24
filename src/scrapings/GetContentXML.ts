@@ -12,6 +12,7 @@ export const GetContentXML = async (page: Page, settings: ISettingsGoiania): Pro
         settings.messageLog = 'GetContentXML'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao obter o conteúdo do XML.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

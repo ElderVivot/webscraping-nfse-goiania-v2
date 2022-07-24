@@ -27,6 +27,8 @@ export interface ISettingsGoiania {
     qtdNotes?: number
     qtdTimesReprocessed?: number
     pathFile?: string
+    nameStep?: string
+    errorResponseApi?: any
 }
 
 export interface ILogNotaFiscalApi {

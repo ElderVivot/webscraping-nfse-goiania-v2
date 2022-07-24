@@ -11,6 +11,7 @@ export const OpenCompanieInNewPage = async (page: Page, settings: ISettingsGoian
         settings.messageLog = 'OpenCompanieInNewPage'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao abrir empresa numa nova página.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

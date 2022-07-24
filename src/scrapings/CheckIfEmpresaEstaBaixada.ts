@@ -23,6 +23,7 @@ export const CheckIfEmpresaEstaBaixada = async (page: Page, settings: ISettingsG
         }
         settings.messageLog = 'CheckIfEmpresaEstaBaixada'
         settings.messageError = error
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

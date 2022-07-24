@@ -12,6 +12,7 @@ export const ChangeCompanie = async (page: Page, settings: ISettingsGoiania): Pr
         settings.messageLog = 'ChangeCompanie'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao realizar a troca de empresa.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

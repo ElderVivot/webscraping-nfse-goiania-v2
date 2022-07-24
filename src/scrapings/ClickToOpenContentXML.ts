@@ -15,6 +15,7 @@ export const ClickToOpenContentXML = async (page: Page, settings: ISettingsGoian
         settings.messageLog = 'ClickToOpenContentXML'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao abrir o conteúdo do XML.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

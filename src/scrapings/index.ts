@@ -4,6 +4,7 @@ import { makeDateImplementation } from '@common/adapters/date/date-factory'
 import { makeFetchImplementation } from '@common/adapters/fetch/fetch-factory'
 import { logger } from '@common/log'
 import { scrapingNotesLib } from '@queues/lib/ScrapingNotes'
+import { saveLogDynamo } from '@services/dynamodb'
 import { returnMonthsOfYear } from '@utils/functions'
 
 import { IAccessPortals } from './_interfaces'
@@ -92,10 +93,12 @@ export class Applicattion {
                     year++
                 }
             } catch (error) {
-                logger.error({
-                    msg: `Erro ao processar dados do user ${access.login}`,
-                    locationFile: __filename,
-                    error
+                logger.error(error)
+                await saveLogDynamo({
+                    messageError: error,
+                    messageLog: 'Scraping/index',
+                    pathFile: __filename,
+                    typeLog: 'error'
                 })
             }
         }

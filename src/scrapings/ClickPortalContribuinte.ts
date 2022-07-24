@@ -25,6 +25,7 @@ export const ClickPortalContribuinte = async (page: Page, browser: Browser, sett
         settings.messageLog = 'ClickPortalContribuinte'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao clicar no botão "Portal do Contribuinte"'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings, browser)
         await treatsMessageLog.saveLog()

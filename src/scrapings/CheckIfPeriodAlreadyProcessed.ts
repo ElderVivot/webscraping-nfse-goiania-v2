@@ -35,7 +35,7 @@ export async function CheckIfPeriodAlreadyProcessed (page: Page, settings: ISett
             settings.messageLogToShowUser = 'Nao ha um novo periodo pra processar, ou seja, o ultimo processamento ja buscou o periodo maximo.'
         }
         settings.pathFile = __filename
-        handlesFetchError(error, settings.pathFile) // if error is a fetchError
+        settings.errorResponseApi = handlesFetchError(error) // if error is a fetchError
 
         const treatsMessageLog = new TreatsMessageLog(page, settings, null, true)
         await treatsMessageLog.saveLog(saveInDB)

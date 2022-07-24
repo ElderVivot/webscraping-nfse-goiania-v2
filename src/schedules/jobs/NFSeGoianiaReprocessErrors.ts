@@ -8,6 +8,7 @@ import { logger } from '@common/log'
 import { scrapingNotesLib } from '@queues/lib/ScrapingNotes'
 import { IAccessPortals, ILogNotaFiscalApi, TTypeLog } from '@scrapings/_interfaces'
 import { urlBaseApi } from '@scrapings/_urlBaseApi'
+import { saveLogDynamo } from '@services/dynamodb'
 import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
 function getDateStartAndEnd (dateFactory: IDateAdapter) {
@@ -62,7 +63,6 @@ async function processNotes (typeLog: TTypeLog) {
                         await scrapingNotesLib.add({
                             settings: {
                                 ...logNotaFiscal,
-                                typeProcessing: 'MainAddQueueLoguin',
                                 password: passwordDecrypt,
                                 idCompanie: logNotaFiscal.idCompanie,
                                 loguin: logNotaFiscal.login
@@ -74,16 +74,29 @@ async function processNotes (typeLog: TTypeLog) {
                         logger.info(`- Adicionado na fila JOB ID ${jobId} do loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`)
                     }
                 } catch (error) {
-                    logger.error({
-                        msg: `- Erro ao reprocessar scraping ${logNotaFiscal.idLogNfsPrefGyn} referente ao loguin ${logNotaFiscal.login}, IE ${logNotaFiscal.cityRegistration}, periodo ${logNotaFiscal.dateStartDown} a ${logNotaFiscal.dateEndDown}`,
-                        locationFile: __filename,
-                        error
-                    })
+                    if (error.toString().indexOf('TreatsMessageLog') < 0) {
+                        await saveLogDynamo({
+                            ...logNotaFiscal,
+                            dateStartDown: new Date(logNotaFiscal.dateStartDown),
+                            dateEndDown: new Date(logNotaFiscal.dateEndDown),
+                            messageError: error,
+                            messageLog: 'NFSeGoianiaReprocessErrors',
+                            pathFile: __filename,
+                            typeLog: 'error'
+                        })
+                    }
                 }
             }
         }
     } catch (error) {
-        handlesFetchError(error, __filename)
+        const responseFetch = handlesFetchError(error)
+        await saveLogDynamo({
+            messageError: error,
+            messageLog: 'NFSeGoianiaReprocessErrors',
+            pathFile: __filename,
+            typeLog: 'error',
+            errorResponseApi: responseFetch
+        })
     }
 }
 

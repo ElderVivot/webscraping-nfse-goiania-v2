@@ -29,6 +29,7 @@ export const GotoLinkNFeEletrotinaEntrar = async (page: Page, settings: ISetting
             settings.typeLog = 'warning'
             settings.messageLogToShowUser = 'O botão de "Entrar" nas NF-e Eletrônica está desabilitado ou invisível'
         }
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

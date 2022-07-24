@@ -14,6 +14,7 @@ export const CheckIfSelectLoaded = async (page: Page, settings: ISettingsGoiania
         settings.messageLog = 'CheckIfSelectLoaded'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao checar se a troca de empresa foi realizada.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

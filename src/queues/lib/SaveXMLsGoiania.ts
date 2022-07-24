@@ -3,6 +3,7 @@ import Queue from 'bull'
 import { logger } from '@common/log'
 import redisConfig from '@config/redis'
 import { ILogNotaFiscalApi, ISettingsGoiania } from '@scrapings/_interfaces'
+import { saveLogDynamo } from '@services/dynamodb'
 import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
 import { SaveXMLsGoianiaJobs } from '../jobs/SaveXMLsGoiania'
@@ -31,6 +32,15 @@ saveXMLsGoianiaLib.on('failed', async (job, error) => {
     const saveLog = new SaveLogPrefGoiania(dataToSave)
     const idLogNfsPrefGyn = await saveLog.save()
 
+    await saveLogDynamo({
+        ...settings,
+        typeLog: 'error',
+        messageLog: 'ErrorToProcessDataInQueue',
+        pathFile: __filename,
+        messageError: error.message?.toString(),
+        messageLogToShowUser: 'Erro ao salvar XMLs na pasta.'
+    })
+
     logger.error('Job failed', `ID ${idLogNfsPrefGyn} | ${settings.codeCompanieAccountSystem} - ${settings.nameCompanie} - ${settings.federalRegistration} | ${settings.dateStartDown} - ${settings.dateEndDown}`)
 })
 
@@ -55,6 +65,15 @@ saveXMLsGoianiaLib.on('completed', async (job) => {
 
     const saveLog = new SaveLogPrefGoiania(dataToSave)
     const idLogNfsPrefGyn = await saveLog.save()
+
+    await saveLogDynamo({
+        ...settings,
+        typeLog: 'success',
+        messageLog: 'SucessToSaveNotes',
+        pathFile: __filename,
+        messageError: '',
+        messageLogToShowUser: 'Notas salvas com sucesso'
+    })
 
     logger.info('Job success', `ID ${idLogNfsPrefGyn} | ${settings.codeCompanieAccountSystem} - ${settings.nameCompanie} - ${settings.federalRegistration} | ${settings.dateStartDown} - ${settings.dateEndDown}`)
 })

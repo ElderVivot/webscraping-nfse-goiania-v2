@@ -11,6 +11,7 @@ export const SerializeXML = async (page: Page, settings: ISettingsGoiania, conte
         settings.messageLog = 'SerializeXML'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao retirar caracteres inválidos XML.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

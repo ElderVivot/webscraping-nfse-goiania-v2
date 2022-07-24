@@ -21,6 +21,7 @@ export const OpenSiteGoiania = async (page: Page, browser: Browser, settings: IS
         settings.typeLog = 'error'
         settings.messageLog = 'OpenSiteGoiania'
         settings.messageError = error
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings, browser)
         await treatsMessageLog.saveLog()

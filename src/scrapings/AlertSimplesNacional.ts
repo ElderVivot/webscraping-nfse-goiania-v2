@@ -19,6 +19,7 @@ export const AlertSimplesNacional = async (page: Page, settings: ISettingsGoiani
         settings.messageLog = 'AlertSimplesNacional'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao passar pelo alerta do simples nacional.'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

@@ -13,6 +13,7 @@ export const ClickNFeEletronica = async (page: Page, settings: ISettingsGoiania)
         settings.messageLog = 'ClickNFeEletronica'
         settings.messageError = error
         settings.messageLogToShowUser = 'Erro ao clicar no botão "NF-e Eletrônica".'
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()

@@ -23,6 +23,7 @@ export const CheckIfExistNoteInPeriod = async (page: Page, settings: ISettingsGo
         }
         settings.messageLog = 'CheckIfExistNoteInPeriod'
         settings.messageError = error
+        settings.pathFile = __filename
 
         const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()
