@@ -12,9 +12,10 @@ import { urlBaseApi } from './_urlBaseApi'
 import { PeriodToDownNotesGoiania } from './PeriodToDownNotesGoiania'
 
 async function addScrapingToQueue (idAccessPortals: string, loguin: string, password: string, dateStart: Date, dateEnd: Date): Promise<void> {
-    const dateFactory = makeDateImplementation()
-
+    // if today < dateEnd dont process now
     if (new Date() < dateEnd) return null
+
+    const dateFactory = makeDateImplementation()
 
     const jobId = `${idAccessPortals}_${dateFactory.formatDate(dateStart, 'yyyyMMdd')}_${dateFactory.formatDate(dateEnd, 'yyyyMMdd')}`
     const job = await scrapingNotesLib.getJob(jobId)
