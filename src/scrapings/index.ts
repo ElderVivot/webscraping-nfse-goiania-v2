@@ -14,6 +14,8 @@ import { PeriodToDownNotesGoiania } from './PeriodToDownNotesGoiania'
 async function addScrapingToQueue (idAccessPortals: string, loguin: string, password: string, dateStart: Date, dateEnd: Date): Promise<void> {
     const dateFactory = makeDateImplementation()
 
+    if (new Date() < dateEnd) return null
+
     const jobId = `${idAccessPortals}_${dateFactory.formatDate(dateStart, 'yyyyMMdd')}_${dateFactory.formatDate(dateEnd, 'yyyyMMdd')}`
     const job = await scrapingNotesLib.getJob(jobId)
     if (job?.finishedOn) await job.remove() // remove job if already fineshed to process again, if dont fineshed yet, so dont process
@@ -74,9 +76,9 @@ export class Applicattion {
                             if (dayFinal >= 7) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 1), new Date(year, monthSubOne, 7))
                             // day 8 at 14
                             if (dayFinal >= 14) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 8), new Date(year, monthSubOne, 14))
-                            // // day 15 at 21
+                            // day 15 at 21
                             if (dayFinal >= 21) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 15), new Date(year, monthSubOne, 21))
-                            // // day 22 at last_day
+                            // day 22 at last_day
                             if (dayFinal >= 28) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 22), new Date(year, monthSubOne + 1, 0))
                         } else {
                             // day 1 at 7
