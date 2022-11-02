@@ -9,11 +9,11 @@ import { TreatsMessageLog } from './TreatsMessageLog'
 async function getCompanieActive (companies: Array<ICompanies>, onlyActive: boolean, year: number, month: number): Promise<ICompanies> {
     if (onlyActive) {
         for (const companie of companies) {
-            const { dateInicialAsClient, dateFinalAsClient, federalRegistration } = companie
+            const { dateInicialAsClient, dateFinalAsClient, federalRegistration, status } = companie
             const dateInicialAsClientToDate = dateInicialAsClient ? new Date(dateInicialAsClient) : null
             const dateFinalAsClientToDate = dateFinalAsClient ? new Date(dateFinalAsClient) : null
             const cgceSanatized = federalRegistration ? federalRegistration.trim : ''
-            if (cgceSanatized) {
+            if (cgceSanatized && status === 'ACTIVE') {
                 if (!dateInicialAsClientToDate || (dateInicialAsClientToDate.getMonth() + 1 >= month && dateInicialAsClientToDate.getFullYear() >= year)) {
                     if (!dateFinalAsClientToDate || (dateFinalAsClientToDate.getMonth() + 1 <= month && dateFinalAsClientToDate.getFullYear() <= year)) {
                         return companie
