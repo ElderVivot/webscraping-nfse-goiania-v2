@@ -2,7 +2,6 @@ import puppeteer, { Page } from 'puppeteer'
 import 'dotenv/config'
 
 import { logger } from '@common/log'
-import { saveLogDynamo } from '@services/dynamodb'
 import { cleanDataObject } from '@utils/clean-data-object'
 
 import { ISettingsGoiania } from './_interfaces'
@@ -148,12 +147,6 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
             } catch (error) {
                 if (error.toString().indexOf('TreatsMessageLog') < 0) {
                     logger.error(error)
-                    await saveLogDynamo({
-                        messageError: error,
-                        messageLog: 'MainProcessLoguin',
-                        pathFile: __filename,
-                        typeLog: 'error'
-                    })
                 }
             }
         }
@@ -162,11 +155,5 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
         if (browser) await browser.close()
     } catch (error) {
         logger.error(error)
-        await saveLogDynamo({
-            messageError: error,
-            messageLog: 'MainProcessLoguin',
-            pathFile: __filename,
-            typeLog: 'error'
-        })
     }
 }

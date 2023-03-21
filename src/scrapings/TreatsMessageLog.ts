@@ -2,7 +2,6 @@
 import { Browser, Page } from 'puppeteer'
 
 import { logger } from '@common/log'
-import { saveLogDynamo } from '@services/dynamodb'
 import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
 import { ILogNotaFiscalApi, ISettingsGoiania } from './_interfaces'
@@ -45,8 +44,6 @@ export class TreatsMessageLog {
                 ...this.settings
             })
         }
-
-        await saveLogDynamo(this.settings)
 
         if (!this.noClosePage) await this.page.close()
         if (this.browser) await this.browser.close()

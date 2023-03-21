@@ -8,7 +8,6 @@ import { logger } from '@common/log'
 import { scrapingNotesLib } from '@queues/lib/ScrapingNotes'
 import { IAccessPortals, ILogNotaFiscalApi, TTypeLog } from '@scrapings/_interfaces'
 import { urlBaseApi } from '@scrapings/_urlBaseApi'
-import { saveLogDynamo } from '@services/dynamodb'
 import { SaveLogPrefGoiania } from '@services/SaveLogPrefGoiania'
 
 function getDateStartAndEnd (dateFactory: IDateAdapter) {
@@ -75,28 +74,15 @@ async function processNotes (typeLog: TTypeLog) {
                     }
                 } catch (error) {
                     if (error.toString().indexOf('TreatsMessageLog') < 0) {
-                        await saveLogDynamo({
-                            ...logNotaFiscal,
-                            dateStartDown: new Date(logNotaFiscal.dateStartDown),
-                            dateEndDown: new Date(logNotaFiscal.dateEndDown),
-                            messageError: error,
-                            messageLog: 'NFSeGoianiaReprocessErrors',
-                            pathFile: __filename,
-                            typeLog: 'error'
-                        })
+                        logger.error(error, __filename)
                     }
                 }
             }
         }
     } catch (error) {
         const responseFetch = handlesFetchError(error)
-        await saveLogDynamo({
-            messageError: error,
-            messageLog: 'NFSeGoianiaReprocessErrors',
-            pathFile: __filename,
-            typeLog: 'error',
-            errorResponseApi: responseFetch
-        })
+        if (responseFetch) logger.error(responseFetch, __filename)
+        else logger.error(error, __filename)
     }
 }
 
@@ -104,6 +90,15 @@ export const jobNfsGoianiaError = new CronJob(
     '30 * * * *',
     async function () {
         await processNotes('error')
+    },
+    null,
+    true
+)
+
+export const jobNfsGoianiaWarn = new CronJob(
+    '10 12 * * *',
+    async function () {
+        await processNotes('warning')
     },
     null,
     true
