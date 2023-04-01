@@ -41,21 +41,21 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
     const { cityRegistration, federalRegistration } = settings
 
     try {
-        settings.nameStep = `0 - Abrindo loguin ${settings.loguin}`
+        logger.info(`0 - Abrindo loguin ${settings.loguin}`)
         const browser = await puppeteer.launch({ headless: HEADLESS === 'YES', slowMo: 50, args: ['--start-maximized'] })
         const page = await browser.newPage()
         await page.setViewport({ width: 0, height: 0 })
 
-        settings.nameStep = '1 - Abrindo site da prefeitura'
+        logger.info('1 - Abrindo site da prefeitura')
         await OpenSiteGoiania(page, browser, settings)
 
-        settings.nameStep = '2 - Realizando o loguin'
+        logger.info('2 - Realizando o loguin')
         await Loguin(page, browser, settings)
 
-        settings.nameStep = '3 - Clicando no botão "Portal Contruinte"'
+        logger.info('3 - Clicando no botão "Portal Contruinte"')
         await ClickPortalContribuinte(page, browser, settings)
 
-        settings.nameStep = '4 - Pegando a relação de empresas que este contribuinte possui.'
+        logger.info('4 - Pegando a relação de empresas que este contribuinte possui.')
         const optionsEmpresas = await GetOptionsEmpresas(page, browser, settings)
 
         // Pega a URL atual pra não ter que abrir do zero o processo
@@ -65,7 +65,7 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
         for (const option of optionsEmpresas) {
             if (cityRegistration) if (option.inscricaoMunicipal !== settings.cityRegistration) continue
 
-            settings.nameStep = `5 - Iniciando processamento da empresa ${option.label} - ${option.inscricaoMunicipal}`
+            logger.info(`5 - Iniciando processamento da empresa ${option.label} - ${option.inscricaoMunicipal}`)
 
             if (!federalRegistration) {
                 settings = cleanDataObject(settings, [], ['idLogNfsPrefGyn', 'idAccessPortals', 'loguin', 'password', 'typeProcessing', 'dateStartDown', 'dateEndDown', 'month', 'year', 'nameStep'])
@@ -85,43 +85,43 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
                 await pageEmpresa.setViewport({ width: 0, height: 0 })
                 await OpenCompanieInNewPage(pageEmpresa, settings, urlActual)
 
-                settings.nameStep = '6 - Realizando a troca pra empresa atual'
+                logger.info('6 - Realizando a troca pra empresa atual')
                 await ChangeCompanie(pageEmpresa, settings)
 
-                settings.nameStep = '7 - Checando se a troca foi realizada com sucesso'
+                logger.info('7 - Checando se a troca foi realizada com sucesso')
                 await CheckIfSelectLoaded(pageEmpresa, settings)
 
-                settings.nameStep = '8 - Verificando se o "Contribuinte está com a situação Baixada/Suspensa"'
+                logger.info('8 - Verificando se o "Contribuinte está com a situação Baixada/Suspensa"')
                 await CheckIfEmpresaEstaBaixada(pageEmpresa, settings)
 
-                settings.nameStep = '9 - Verificando se tem aviso pro contribuinte, caso sim, fechando-o'
+                logger.info('9 - Verificando se tem aviso pro contribuinte, caso sim, fechando-o')
                 await CheckAndCloseIfExistPopupWarning(pageEmpresa)
 
-                settings.nameStep = '10 - Clicando no botão "NF-e Eletrônica"'
+                logger.info('10 - Clicando no botão "NF-e Eletrônica"')
                 await ClickNFeEletronica(pageEmpresa, settings)
 
-                settings.nameStep = '12 - Clicando no botão "Entrar"'
+                logger.info('12 - Clicando no botão "Entrar"')
                 await GotoLinkNFeEletrotinaEntrar(pageEmpresa, settings)
 
                 // Aviso depois do botão "Entrar" --> caso tenha aviso para o processamento desta
                 // empresa, pois geralmente quando tem é empresa sem atividade de serviço ou usuário inválido
                 await CheckIfAvisoFrameMnuAfterEntrar(pageEmpresa, settings)
 
-                settings.nameStep = '13 - Passando pelo alerta do simples nacional.'
+                logger.info('13 - Passando pelo alerta do simples nacional.')
                 await AlertSimplesNacional(pageEmpresa, settings)
 
-                settings.nameStep = '14 - Clicando no botão "Download de XML de Notas Fiscais por período"'
+                logger.info('14 - Clicando no botão "Download de XML de Notas Fiscais por período"')
                 await ClickDownloadXML(pageEmpresa, settings)
 
-                settings.nameStep = '15 - Pegando o CNPJ/CPF do Prestador'
+                logger.info('15 - Pegando o CNPJ/CPF do Prestador')
                 settings.federalRegistration = await GetCNPJPrestador(pageEmpresa, settings)
 
                 settings = await CheckIfCompanieIsValid(pageEmpresa, settings)
 
-                settings.nameStep = '16 - Seleciona o período desejado pra baixar os XMLs'
+                logger.info('16 - Seleciona o período desejado pra baixar os XMLs')
                 await SelectPeriodToDownload(pageEmpresa, settings)
 
-                settings.nameStep = '17 - Clicando no botão "Listar"'
+                logger.info('17 - Clicando no botão "Listar"')
                 const newPagePromise: Promise<Page> = new Promise(resolve => (
                     browser.once('targetcreated', target => resolve(target.page()))
                 ))
@@ -130,16 +130,16 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
                 // Verifica se tem notas no período solicitado, caso não, para o processamento
                 await CheckIfExistNoteInPeriod(pageEmpresa, settings)
 
-                settings.nameStep = '18 - Abrindo os dados das notas'
+                logger.info('18 - Abrindo os dados das notas')
                 await ClickToOpenContentXML(pageEmpresa, settings)
 
-                settings.nameStep = '19 - Obtendo conteúdo das notas'
+                logger.info('19 - Obtendo conteúdo das notas')
                 const contentXML = await GetContentXML(pageEmpresa, settings)
 
-                settings.nameStep = '20 - Retirando caracteres inválidos dos XMLs'
+                logger.info('20 - Retirando caracteres inválidos dos XMLs')
                 const contentXMLSerializable = await SerializeXML(pageEmpresa, settings, contentXML)
 
-                settings.nameStep = '21 - Enviando XMLs das notas para as filas'
+                logger.info('21 - Enviando XMLs das notas para as filas')
                 await SendXMLToQueues(settings, contentXMLSerializable)
 
                 // Fecha a aba do mês afim de que possa abrir outra
