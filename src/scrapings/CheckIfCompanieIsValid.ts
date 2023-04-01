@@ -58,7 +58,7 @@ export async function CheckIfCompanieIsValid (page: Page, settings: ISettingsGoi
         }
         settings.pathFile = __filename
 
-        const treatsMessageLog = new TreatsMessageLog(page, settings, null)
+        const treatsMessageLog = new TreatsMessageLog(page, settings)
         await treatsMessageLog.saveLog()
     }
 }

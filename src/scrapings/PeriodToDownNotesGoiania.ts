@@ -11,13 +11,13 @@ const getDateEnd = (): Date => {
     const today = new Date()
     const dayToday = today.getDate()
 
-    if (dayToday >= 2 && dayToday < 9) {
+    if (dayToday >= 1 && dayToday < 8) {
         return new Date(today.getFullYear(), today.getMonth(), 0)
-    } else if (dayToday >= 9 && dayToday < 16) {
+    } else if (dayToday >= 8 && dayToday < 15) {
         return new Date(today.getFullYear(), today.getMonth(), 7)
-    } else if (dayToday >= 16 && dayToday < 23) {
+    } else if (dayToday >= 15 && dayToday < 22) {
         return new Date(today.getFullYear(), today.getMonth(), 14)
-    } else if (dayToday >= 23 || dayToday === 1) {
+    } else if (dayToday >= 22) {
         return new Date(today.getFullYear(), today.getMonth(), 21)
     }
 }
