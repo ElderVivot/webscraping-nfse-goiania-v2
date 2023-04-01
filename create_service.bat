@@ -26,8 +26,8 @@ goto check_Permissions
 :startInstallationRobots
   echo Installing service
   :: Set your service name and its description here
-  set SERVICE_NAME=IaconRobotsSchedules
-  set SERVICE_DESCRIPTION=IaconRobotsSchedules
+  set SERVICE_NAME=AeronWebscrapinGynXmlSchedules
+  set SERVICE_DESCRIPTION=Aeron Webscrapin Gyn Xml Schedules
 
   :: replace with the absolute path where node.exe can be found
   nssm install %SERVICE_NAME% "C:\Program Files\nodejs\node.exe"
@@ -53,8 +53,8 @@ goto check_Permissions
 :startInstallationQueue
   echo Installing service
   :: Set your service name and its description here
-  set SERVICE_NAME=IaconRobotsQueue
-  set SERVICE_DESCRIPTION=IaconRobotsQueue
+  set SERVICE_NAME=AeronWebscrapingGynXmlQueue
+  set SERVICE_DESCRIPTION=Aeron Webscraping Gyn Xml Queue
 
   :: replace with the absolute path where node.exe can be found
   nssm install %SERVICE_NAME% "C:\Program Files\nodejs\node.exe"
