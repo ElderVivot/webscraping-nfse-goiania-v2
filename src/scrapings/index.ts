@@ -75,7 +75,7 @@ export class Applicattion {
                         const monthSubOne = month - 1
                         if (FREQUENCY === 'WEEKLY') {
                             if (month === monthFinal && year === yearFinal) {
-                            // day 1 at 7
+                                // day 1 at 7
                                 if (dayFinal >= 7) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 1), new Date(year, monthSubOne, 7))
                                 // day 8 at 14
                                 if (dayFinal >= 14) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 8), new Date(year, monthSubOne, 14))
@@ -84,7 +84,7 @@ export class Applicattion {
                                 // day 22 at last_day
                                 if (dayFinal >= 28) await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 22), new Date(year, monthSubOne + 1, 0))
                             } else {
-                            // day 1 at 7
+                                // day 1 at 7
                                 await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 1), new Date(year, monthSubOne, 7))
                                 // day 8 at 14
                                 await addScrapingToQueue(idAccessPortals, login, passwordDecrypt, new Date(year, monthSubOne, 8), new Date(year, monthSubOne, 14))

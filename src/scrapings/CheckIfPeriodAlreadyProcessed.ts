@@ -37,7 +37,7 @@ export async function CheckIfPeriodAlreadyProcessed (page: Page, settings: ISett
         settings.pathFile = __filename
         settings.errorResponseApi = handlesFetchError(error) // if error is a fetchError
 
-        const treatsMessageLog = new TreatsMessageLog(page, settings)
+        const treatsMessageLog = new TreatsMessageLog(page, settings, null, true)
         await treatsMessageLog.saveLog(saveInDB)
     }
 }
