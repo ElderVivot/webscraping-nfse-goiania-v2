@@ -2,7 +2,12 @@ import { IDateAdapter } from '@common/adapters/date/date-adapter'
 import { makeDateImplementation } from '@common/adapters/date/date-factory'
 
 const getDateStart = (dateFactory: IDateAdapter): Date => {
-    const dateStart = dateFactory.subMonths(new Date(), Number(process.env.RETROACTIVE_MONTHS_TO_DOWNLOAD) || 0)
+    const today = new Date()
+    const dayToday = today.getDate()
+
+    let qtdMonthsRetroative = Number(process.env.RETROACTIVE_MONTHS_TO_DOWNLOAD) || 0
+    if (qtdMonthsRetroative === 0 && dayToday >= 1 && dayToday < 8) qtdMonthsRetroative = 1
+    const dateStart = dateFactory.subMonths(new Date(), qtdMonthsRetroative)
     dateStart.setDate(1)
     return dateStart
 }
