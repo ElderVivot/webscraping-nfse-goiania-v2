@@ -95,11 +95,11 @@ export const jobNfsGoianiaError = new CronJob(
     true
 )
 
-export const jobNfsGoianiaWarn = new CronJob(
-    '10 12 * * *',
-    async function () {
-        await processNotes('warning')
-    },
-    null,
-    true
-)
+// export const jobNfsGoianiaWarn = new CronJob(
+//     '10 12 * * *',
+//     async function () {
+//         await processNotes('warning')
+//     },
+//     null,
+//     true
+// )
