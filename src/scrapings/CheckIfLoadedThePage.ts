@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer'
 
 export const checkIfLoadedThePage = async (pageOrFrame: Page, selector: string, isAFrame = false): Promise<boolean> => {
-    const searchSelectorAlreadyExists = async (timeout = 0) => {
+    const searchSelectorAlreadyExists = async (timeout = 1) => {
         await pageOrFrame.waitForTimeout(timeout * 1000)
         let result = false
         try {

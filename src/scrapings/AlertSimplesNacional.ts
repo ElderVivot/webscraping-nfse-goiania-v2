@@ -6,11 +6,18 @@ import { TreatsMessageLog } from './TreatsMessageLog'
 
 export const AlertSimplesNacional = async (page: Page, settings: ISettingsGoiania): Promise<void> => {
     try {
+        await page.waitForTimeout(1500)
         await checkIfLoadedThePage(page, 'cpo', true)
         const frame = page.frames().find(frame => frame.name() === 'cpo')
         if (frame) {
-            await frame.waitForSelector('center a')
-            await frame.click('center a')
+            let textSimplesNacional: string = await page.$eval('center b', element => element.textContent)
+            textSimplesNacional = textSimplesNacional ? textSimplesNacional.normalize('NFD').replace(/[^a-zA-Z/ ]/g, '').toUpperCase() : ''
+            if (textSimplesNacional.indexOf('SIMPLES NACIONAL') >= 0) {
+                await frame.waitForSelector('center a')
+                await frame.click('center a')
+            } else {
+                throw 'NOT_FOUND_ALERT_SIMPLES_NACIONAL_DONT_WINDOW_CORRECT_YET'
+            }
         } else {
             throw 'NOT_FOUND_FRAME_CPO'
         }
