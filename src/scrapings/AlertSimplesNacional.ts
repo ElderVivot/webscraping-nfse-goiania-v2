@@ -10,7 +10,7 @@ export const AlertSimplesNacional = async (page: Page, settings: ISettingsGoiani
         await checkIfLoadedThePage(page, 'cpo', true)
         const frame = page.frames().find(frame => frame.name() === 'cpo')
         if (frame) {
-            let textSimplesNacional: string = await page.$eval('center b', element => element.textContent)
+            let textSimplesNacional: string = await frame.$eval('center b', element => element.textContent)
             textSimplesNacional = textSimplesNacional ? textSimplesNacional.normalize('NFD').replace(/[^a-zA-Z/ ]/g, '').toUpperCase() : ''
             if (textSimplesNacional.indexOf('SIMPLES NACIONAL') >= 0) {
                 await frame.waitForSelector('center a')
