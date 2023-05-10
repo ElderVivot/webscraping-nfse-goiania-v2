@@ -6,7 +6,7 @@ import { TreatsMessageLog } from './TreatsMessageLog'
 
 async function ckeckIfExistWarningLogin (page: Page) {
     try {
-        const userInvalid = treateTextField(await page.$eval('span[id*="SanitizedHtml"', el => el.textContent))
+        const userInvalid = treateTextField(await page.$eval('.Feedback_Message_Error', el => el.textContent))
 
         if (userInvalid.indexOf('SENHA INVALIDA') >= 0) {
             return 'USER_OR_PASS_INVALID'
