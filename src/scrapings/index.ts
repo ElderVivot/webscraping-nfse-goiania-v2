@@ -45,7 +45,7 @@ export class Applicattion {
         const fetchFactory = makeFetchImplementation()
 
         const urlBase = `${urlBaseApi}/access_portals`
-        const urlFilter = '?status=ACTIVE'
+        const urlFilter = '?status=ACTIVE&getPaswordIncorrect=no'
         const response = await fetchFactory.get<IAccessPortals[]>(`${urlBase}${urlFilter}`, { headers: { tenant: process.env.TENANT } })
         if (response.status >= 400) throw response
         const allAccess = response.data

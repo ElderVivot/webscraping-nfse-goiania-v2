@@ -30,7 +30,7 @@ async function processNotes (typeLog: TTypeLog) {
         const { dateStartString, dateEndString } = getDateStartAndEnd(dateFactory)
 
         const urlBase = `${urlBaseApi}/log_nfs_pref_gyn`
-        const urlFilter = `?typeLog=${typeLog}&dateStartDownBetween=${dateStartString}&dateEndDownBetween=${dateEndString}`
+        const urlFilter = `?typeLog=${typeLog}&dateStartDownBetween=${dateStartString}&dateEndDownBetween=${dateEndString}&getPaswordIncorrect=no`
         const response = await fetchFactory.get<ILogNotaFiscalApi[]>(`${urlBase}${urlFilter}`, { headers: { tenant: process.env.TENANT } })
         if (response.status >= 400) throw response
         const data = response.data
