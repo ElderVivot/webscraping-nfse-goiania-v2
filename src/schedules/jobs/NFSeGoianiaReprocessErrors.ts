@@ -87,7 +87,7 @@ async function processNotes (typeLog: TTypeLog) {
 }
 
 export const jobNfsGoianiaError = new CronJob(
-    '30 * * * *',
+    '30 */2 * * *',
     async function () {
         await processNotes('error')
     },
