@@ -13,8 +13,9 @@ import { PeriodToDownNotesGoiania } from './PeriodToDownNotesGoiania'
 const FREQUENCY = process.env.FREQUENCY || 'WEEKLY'
 
 async function addScrapingToQueue (idAccessPortals: string, loguin: string, password: string, dateStart: Date, dateEnd: Date): Promise<void> {
-    // if today < dateEnd dont process now
-    if (new Date() < dateEnd) return null
+    const today = new Date()
+    // if today < dateEnd || today === dateEnd dont process now
+    if (today < dateEnd || new Date(today.getFullYear(), today.getMonth(), today.getDate()) === dateEnd) return null
 
     const dateFactory = makeDateImplementation()
 
