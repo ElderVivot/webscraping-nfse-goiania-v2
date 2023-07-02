@@ -13,11 +13,12 @@ import { PeriodToDownNotesGoiania } from './PeriodToDownNotesGoiania'
 const FREQUENCY = process.env.FREQUENCY || 'WEEKLY'
 
 async function addScrapingToQueue (idAccessPortals: string, loguin: string, password: string, dateStart: Date, dateEnd: Date): Promise<void> {
-    const today = new Date()
-    // if today < dateEnd || today === dateEnd dont process now
-    if (today < dateEnd || new Date(today.getFullYear(), today.getMonth(), today.getDate()) === dateEnd) return null
-
     const dateFactory = makeDateImplementation()
+
+    const today = new Date()
+    const todayString = dateFactory.formatDate(today, 'yyyyMMdd')
+    const dateEndString = dateFactory.formatDate(dateEnd, 'yyyyMMdd')
+    if (today < dateEnd || todayString === dateEndString) return null
 
     const jobId = `${idAccessPortals}_${dateFactory.formatDate(dateStart, 'yyyyMMdd')}_${dateFactory.formatDate(dateEnd, 'yyyyMMdd')}`
     const job = await scrapingNotesLib.getJob(jobId)
