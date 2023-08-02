@@ -1,6 +1,8 @@
 import { IDateAdapter } from '@common/adapters/date/date-adapter'
 import { makeDateImplementation } from '@common/adapters/date/date-factory'
 
+const DAY_PROCESS_DOWNLOAD = Number(process.env.DAY_PROCESS_DOWNLOAD) || 1
+
 const getDateStart = (dateFactory: IDateAdapter): Date => {
     const today = new Date()
     const dayToday = today.getDate()
@@ -16,7 +18,7 @@ const getDateEnd = (): Date => {
     const today = new Date()
     const dayToday = today.getDate()
 
-    if (dayToday >= 1 && dayToday < 8) {
+    if (dayToday >= DAY_PROCESS_DOWNLOAD && dayToday < 8) {
         return new Date(today.getFullYear(), today.getMonth(), 0)
     } else if (dayToday >= 8 && dayToday < 15) {
         return new Date(today.getFullYear(), today.getMonth(), 7)
