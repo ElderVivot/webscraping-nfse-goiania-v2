@@ -1,5 +1,6 @@
 import { Page } from 'puppeteer'
 
+import { makeDateImplementation } from '@common/adapters/date/date-factory'
 import { makeFetchImplementation } from '@common/adapters/fetch/fetch-factory'
 
 import { ICompanies, ISettingsGoiania } from './_interfaces'
@@ -7,15 +8,17 @@ import { urlBaseApi } from './_urlBaseApi'
 import { TreatsMessageLog } from './TreatsMessageLog'
 
 async function getCompanieActive (companies: Array<ICompanies>, onlyActive: boolean, year: number, month: number): Promise<ICompanies> {
+    const dateFactory = makeDateImplementation()
+    const { formatDate } = dateFactory
     if (onlyActive) {
         for (const companie of companies) {
             const { dateInicialAsClient, dateFinalAsClient, federalRegistration, status } = companie
             const dateInicialAsClientToDate = dateInicialAsClient ? new Date(dateInicialAsClient) : null
             const dateFinalAsClientToDate = dateFinalAsClient ? new Date(dateFinalAsClient) : null
-            const cgceSanatized = federalRegistration ? federalRegistration.trim : ''
+            const cgceSanatized = federalRegistration ? federalRegistration.trim() : ''
             if (cgceSanatized && status === 'ACTIVE') {
-                if (!dateInicialAsClientToDate || (dateInicialAsClientToDate.getMonth() + 1 >= month && dateInicialAsClientToDate.getFullYear() >= year)) {
-                    if (!dateFinalAsClientToDate || (dateFinalAsClientToDate.getMonth() + 1 <= month && dateFinalAsClientToDate.getFullYear() <= year)) {
+                if (!dateInicialAsClientToDate || (Number(formatDate(dateInicialAsClientToDate, 'yyyyMM')) <= Number(formatDate(new Date(year, month, 1), 'yyyyMM')))) {
+                    if (!dateFinalAsClientToDate || (Number(formatDate(dateFinalAsClientToDate, 'yyyyMM')) >= Number(formatDate(new Date(year, month, 1), 'yyyyMM')))) {
                         return companie
                     }
                 }
