@@ -8,6 +8,7 @@ import { ISettingsGoiania } from './_interfaces'
 import { AlertSimplesNacional } from './AlertSimplesNacional'
 import { ChangeCompanie } from './ChangeCompanie'
 import { CheckAndCloseIfExistPopupWarning } from './CheckAndCloseIfExistPopupWarning'
+import { CheckAndCloseIfMessageMEI } from './CheckAndCloseIfMessageMEI'
 import { CheckIfAvisoFrameMnuAfterEntrar } from './CheckIfAvisoFrameMnuAfterEntrar'
 import { CheckIfCompanieIsValid } from './CheckIfCompanieIsValid'
 import { CheckIfEmpresaEstaBaixada } from './CheckIfEmpresaEstaBaixada'
@@ -87,6 +88,7 @@ export const MainProcessLoguin = async (settings: ISettingsGoiania): Promise<voi
 
                 logger.info('6 - Realizando a troca pra empresa atual')
                 await ChangeCompanie(pageEmpresa, settings)
+                await CheckAndCloseIfMessageMEI(pageEmpresa)
 
                 logger.info('7 - Checando se a troca foi realizada com sucesso')
                 await CheckIfSelectLoaded(pageEmpresa, settings)
